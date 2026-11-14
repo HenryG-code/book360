@@ -10,17 +10,18 @@ help:
 
 # Run the Next.js development server
 dev:
-	@echo "dev is not implemented yet" >&2; exit 1
+	npm run dev
 
 # Stop the development server
 stop-dev:
 	@echo "stop-dev is not implemented yet" >&2; exit 1
 
-# Run lint, type checks, unit tests and Playwright
+# Run type checks and the Playwright end-to-end tests. Lint and unit tests join in slices 1 and 2
 test:
-	@echo "test is not implemented yet" >&2; exit 1
+	npm run typecheck
+	npm run test:e2e
 
 # Create a production build
 build:
-	@echo "build is not implemented yet" >&2; exit 1
+	npm run build
 

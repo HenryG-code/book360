@@ -1,10 +1,10 @@
-# StayView
+# Book360
 
 A hotel and holiday-rental booking demo where guests explore a room before completing a simulated
 booking. Availability and checkout are simulated throughout.
 
-> **Status: not started.** This repository holds the plan and structure. Nothing below is implemented,
-> and no claim here has been tested.
+> **Status: feasibility prototype in progress.** A prototype runs locally with real 360° photographs. No
+> feasibility gate has passed yet, and nothing is deployed.
 
 ## Stack
 
@@ -19,7 +19,28 @@ assets. Docker and Kubernetes are unnecessary for the first version.
 
 ## Quick start
 
-Not available yet. Commands are listed by `make help`.
+Needs Node.js 20.9 or newer.
+
+```bash
+npm install
+npm run dev
+```
+
+Then open <http://localhost:3000>. Add `?webgl=off` to a stay's address to see the tour fallback.
+`npm run media:prepare -- --fetch` downloads the source photographs (about 103 MB, kept out of git) and
+rebuilds the web-sized images. The built images are already in `public/media/`, so this is optional.
+
+Tests need one extra download the first time, the browser that Playwright drives:
+
+```bash
+npx playwright install chromium
+npm run test:e2e
+```
+
+`npm run qa:screens -- http://localhost:3000` saves a picture of every page, at desktop and phone sizes,
+into `test-results/screens/` while the dev server is running.
+
+Versions in use: Next.js 16.4.6, React 19.3.1, Tailwind CSS 4.3.5, Marzipano 0.10.2, TypeScript 5.9, Playwright 1.65.0.
 
 ## Documentation
 
@@ -27,6 +48,7 @@ Not available yet. Commands are listed by `make help`.
 - [Architecture](docs/architecture.md)
 - [Threat model](docs/threat-model.md)
 - [Feasibility gates](docs/feasibility.md)
+- [Build plan](docs/build-plan.md): the order of work, one tested slice at a time
 - [Decision records](docs/adr/)
 
 ## Limitations
@@ -36,4 +58,8 @@ of real dimensions or amenities. This is a non-commercial portfolio demo.
 
 ## Licence
 
-Not yet chosen. Publish only sample photos you have permission to use, and credit them here.
+The code is licensed under the [Apache License 2.0](LICENSE).
+
+Every image in `public/media/` comes from a photograph released under CC0 by Poly Haven. Sources and
+authors are in [CREDITS.md](CREDITS.md). The stays themselves are invented. Add a picture only after its
+licence or permission is recorded there.

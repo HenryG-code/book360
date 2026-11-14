@@ -1,6 +1,6 @@
 # Security policy
 
-StayView is a portfolio project under active development. It has no supported releases yet.
+Book360 is a portfolio project under active development. It has no supported releases yet.
 
 ## Reporting a vulnerability
 

@@ -61,3 +61,10 @@ public/build/
 .DS_Store
 Thumbs.db
 .claude/settings.local.json
+
+# Full-size source photographs. Only the web-sized copies in public/media are committed.
+media-src/
+
+# Next.js generated files
+next-env.d.ts
+*.tsbuildinfo

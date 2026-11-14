@@ -4,6 +4,11 @@
 
 ## Website
 
+The prototype exists and was checked once on a desktop: see the
+[desktop lab check](benchmarks/2026-11-13-slice-0-desktop.md). It now uses real 360-degree photographs.
+No gate is ticked, because that check used a simulated WebGL failure, no phone and no deployment, and
+nobody else has yet been asked whether the labels are clear.
+
 - [ ] Booking flow works without the viewer
 - [ ] A sample panorama loads acceptably on mobile
 - [ ] Source photos and AI labels are clear

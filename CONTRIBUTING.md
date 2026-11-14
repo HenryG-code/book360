@@ -1,6 +1,6 @@
 # Contributing
 
-StayView is a personal portfolio project, so substantial changes should start with an issue.
+Book360 is a personal portfolio project, so substantial changes should start with an issue.
 
 - Work on a short-lived branch and open a pull request into `main`.
 - Describe the behaviour changed, tradeoffs, validation, and any migration or deployment implications.

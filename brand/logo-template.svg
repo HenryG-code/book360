@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Book360 logo: the working file. Open it in Figma, Inkscape, Affinity or Illustrator, or edit the
+  numbers below in a text editor.
+
+  The mark: a map pin (the place you stay) standing inside a ring that passes behind and in front of
+  it (looking all the way around the place).
+
+  Colours are plain hex values, listed at the bottom right. To change one everywhere, find and replace
+  its hex value. On dark backgrounds "360" uses the lighter blue so it stays readable.
+  To change the mark, edit the three shapes inside <symbol id="mark">. Every logo below reuses it.
+  The wordmark is live text in Inter Medium, in capitals with wide spacing. Install Inter to see it
+  exactly, and convert the text to outlines before sending a logo to a printer.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 900" width="1200" height="900">
+  <style>
+    .word { font-family: Inter, "Helvetica Neue", Arial, sans-serif; font-weight: 500; letter-spacing: 0.22em; }
+    .label { font-family: Inter, Arial, sans-serif; font-size: 13px; letter-spacing: 0.2em; fill: #5b6066; }
+  </style>
+
+  <defs>
+    <!-- The mark, drawn on a 64 x 64 grid. It takes its colour from whatever uses it (currentColor). -->
+    <symbol id="mark" viewBox="0 0 64 64">
+      <path id="orbit-back" d="M8 46a24 8 0 0 1 48 0" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" opacity="0.4"/>
+      <path id="pin" d="M32 50S17 35.5 17 24a15 15 0 0 1 30 0c0 11.5-15 26-15 26ZM32 18.5a5.5 5.5 0 1 0 0 11a5.5 5.5 0 1 0 0-11Z" fill="currentColor" fill-rule="evenodd"/>
+      <path id="orbit-front" d="M8 46a24 8 0 0 0 48 0" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round"/>
+    </symbol>
+  </defs>
+
+  <rect width="1200" height="900" fill="#fbfaf7"/>
+
+  <!-- 1. Mark only -->
+  <text class="label" x="60" y="70">MARK</text>
+  <g id="mark-navy" color="#0e3350"><use href="#mark" x="60" y="100" width="160" height="160"/></g>
+  <g id="mark-ink" color="#0b1014"><use href="#mark" x="260" y="100" width="160" height="160"/></g>
+  <g id="mark-badge">
+    <rect x="460" y="100" width="160" height="160" fill="#2a72ae"/>
+    <g color="#fff"><use href="#mark" x="488" y="128" width="104" height="104"/></g>
+  </g>
+  <g id="app-icon">
+    <rect x="660" y="100" width="160" height="160" rx="36" fill="#0e3350"/>
+    <g color="#fff"><use href="#mark" x="684" y="124" width="112" height="112"/></g>
+  </g>
+
+  <!-- 2. Horizontal logo: the one used in the site header -->
+  <text class="label" x="60" y="350">HORIZONTAL</text>
+  <g id="logo-horizontal" color="#0e3350">
+    <use href="#mark" x="60" y="380" width="96" height="96"/>
+    <text class="word" x="178" y="444" font-size="40" fill="currentColor">BOOK<tspan fill="#2a72ae">360</tspan></text>
+  </g>
+
+  <!-- 3. Stacked logo: for square spaces -->
+  <text class="label" x="660" y="350">STACKED</text>
+  <g id="logo-stacked" color="#0e3350">
+    <use href="#mark" x="766" y="372" width="128" height="128"/>
+    <text class="word" x="834" y="548" font-size="30" text-anchor="middle" fill="currentColor">BOOK<tspan fill="#2a72ae">360</tspan></text>
+  </g>
+
+  <!-- 4. On a dark background -->
+  <text class="label" x="60" y="640">ON DARK</text>
+  <rect x="60" y="665" width="540" height="175" fill="#0e3350"/>
+  <g id="logo-on-dark" color="#fff">
+    <use href="#mark" x="100" y="704" width="96" height="96"/>
+    <text class="word" x="218" y="768" font-size="40" fill="currentColor">BOOK<tspan fill="#8cc0ec">360</tspan></text>
+  </g>
+
+  <!-- 5. Colours -->
+  <text class="label" x="660" y="640">COLOURS</text>
+  <rect x="660" y="665" width="96" height="96" fill="#0b1014"/>
+  <rect x="766" y="665" width="96" height="96" fill="#0e3350"/>
+  <rect x="872" y="665" width="96" height="96" fill="#2a72ae"/>
+  <rect x="978" y="665" width="96" height="96" fill="#8cc0ec"/>
+  <rect x="1084" y="665" width="96" height="96" fill="#f1ede6" stroke="#e1d9cc"/>
+  <text class="label" x="660" y="786" font-size="11">#0B1014</text>
+  <text class="label" x="766" y="786" font-size="11">#0E3350</text>
+  <text class="label" x="872" y="786" font-size="11">#2A72AE</text>
+  <text class="label" x="978" y="786" font-size="11">#8CC0EC</text>
+  <text class="label" x="1084" y="786" font-size="11">#F1EDE6</text>
+</svg>

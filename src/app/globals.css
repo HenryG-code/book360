@@ -1,0 +1,128 @@
+@import "tailwindcss";
+
+/*
+  Design tokens. The direction is "quiet luxury": warm sand backgrounds, deep sea-blue panels,
+  near-black ink, a heavy high-contrast serif for headings and a lot of empty space. Tailwind turns each
+  --color-* below into utilities such as bg-sand or text-navy, so pages never hard-code a hex value.
+*/
+@theme {
+  --color-ink: #0b1014;
+  --color-sand: #f1ede6;
+  --color-sand-deep: #e1d9cc;
+  --color-paper: #fbfaf7;
+  /* navy: the panels. navy-deep: the darkest band. ocean: the small bright accent square. */
+  --color-navy: #0e3350;
+  --color-navy-deep: #0a2337;
+  --color-ocean: #2a72ae;
+  /* sky: the blue of "360" in the logo when it sits on a dark background. */
+  --color-sky: #8cc0ec;
+  --color-stone: #5b6066;
+
+  --font-display: var(--font-display-face), "Times New Roman", serif;
+  --font-sans: var(--font-sans-face), system-ui, sans-serif;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+}
+
+/*
+  Three text styles carry the whole look, so they are named once here instead of repeating long class
+  lists on every page.
+    display  large serif headings, set tight so two or three lines read as one shape
+    eyebrow  the small spaced-out capitals above a heading
+    text-link  an underlined capitals link, such as "View stay"
+*/
+@utility display {
+  font-family: var(--font-display);
+  font-weight: 400;
+  line-height: 1.04;
+  /* Gloock is drawn tight. A little extra space between words keeps them from running together. */
+  letter-spacing: 0;
+  word-spacing: 0.08em;
+  text-wrap: balance;
+}
+
+@utility eyebrow {
+  font-size: 0.6875rem;
+  font-weight: 500;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+@utility text-link {
+  display: inline-block;
+  /* The space above the words is invisible but tappable: a finger needs about 44 pixels of height. */
+  padding-top: 1.4rem;
+  padding-bottom: 0.3rem;
+  border-bottom: 1px solid currentColor;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  transition: opacity 200ms;
+
+  &:hover {
+    opacity: 0.65;
+  }
+}
+
+/* One visible focus style everywhere, so keyboard users can always see where they are. */
+:focus-visible {
+  outline: 2px solid var(--color-ocean);
+  outline-offset: 3px;
+}
+
+.on-dark :focus-visible {
+  outline-color: #fff;
+}
+
+/* The arrow that browsers draw beside a <summary> is replaced by our own plus sign. */
+summary {
+  list-style: none;
+}
+
+summary::-webkit-details-marker {
+  display: none;
+}
+
+@keyframes rise {
+  from {
+    opacity: 0;
+    transform: translateY(1.75rem);
+  }
+}
+
+/*
+  Motion is an extra. It only runs for visitors who have not asked their device to reduce motion, and
+  the scroll-linked part only in browsers that support it. Everyone else sees the finished page.
+*/
+@media (prefers-reduced-motion: no-preference) {
+  .rise {
+    animation: rise 900ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+
+  @supports (animation-timeline: view()) {
+    .reveal {
+      animation: rise linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 35%;
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  * {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}

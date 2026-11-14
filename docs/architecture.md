@@ -1,6 +1,84 @@
 # Architecture
 
-Planned design, not yet implemented.
+Planned design. Only the feasibility prototype described next exists; every other section is a plan.
+
+## What exists today: the feasibility prototype
+
+```mermaid
+flowchart LR
+  subgraph build["Build time"]
+    source["media-src (full-size photographs, not committed)"] --> script["prepare-media.mjs"]
+    script --> media["public/media (web-sized JPEG files)"]
+    data["src/data/listings.ts"] --> pages["Pre-built HTML pages"]
+  end
+  subgraph browser["Visitor's browser"]
+    html["Home, stay and booking pages"] -->|click 'Open 360° tour'| tour["RoomTour component"]
+    tour -->|WebGL available| viewer["Marzipano chunk + panorama"]
+    tour -->|WebGL missing or load fails| fallback["Message and photo gallery"]
+  end
+  pages --> html
+  media --> html
+```
+
+| Piece | Where | Why it is built this way |
+|---|---|---|
+| Pages | `src/app/` | Server components, pre-built to static HTML. They send no viewer code, so browsing and booking never depend on WebGL |
+| Listings | `src/data/listings.ts` | Three hard-coded stays. The stays are invented and the photographs are real, and every page says so. Prices are integer cents. Replaced by validated seed data in slice 2 |
+| Tour | `src/components/RoomTour.tsx` | The only client component. It imports Marzipano with a dynamic `import()` after the click, so the bundler puts the viewer in its own file that most visits never download |
+| Fallback | Same component | WebGL is tested before anything is downloaded. Without it, or if loading fails, the visitor gets a message, the photos and the booking link |
+| Sample media | `scripts/prepare-media.mjs`, `CREDITS.md` | Real 360-degree photographs released under CC0. The script shrinks each one to a 4096-pixel panorama and cuts the gallery photos out of the same photograph, so the gallery cannot show something the tour does not. The 20 to 40 MB originals stay out of the repository, and the script checks each against its published checksum |
+| Credits | `src/app/credits/`, `src/data/listings.ts` | Each listing carries the credit for its photograph. The stay page and the credits page read it from there, so a picture cannot be added without saying where it came from |
+| Booking | `src/app/stays/[slug]/book/` | A placeholder page. It proves booking is reachable without the tour. The real flow is slice 6 |
+
+The tour moves through five states: `poster`, `loading`, `ready`, `unsupported` and `failed`. Naming
+them keeps every screen a visitor can see deliberate, including the unhappy ones.
+
+## Visual direction
+
+Quiet and editorial: warm sand backgrounds, deep sea-blue panels, near-black text, a heavy high-contrast
+serif (Gloock) for headings and generous empty space.
+
+- **Tokens.** Colours and fonts are defined once in `src/app/globals.css`, and pages use the token names
+  rather than raw values. Changing the palette is a one-file edit.
+- **Three named text styles.** `display`, `eyebrow` and `text-link` carry the look. Naming them once
+  keeps every heading and label consistent, which is most of what makes a page feel deliberate.
+- **Logo.** `brand/logo-template.svg` is the editable master. `src/components/Mark.tsx` and
+  `src/app/icon.svg` hold copies of its shapes, drawn as SVG so they stay sharp at any size and take
+  the colour of the text around them.
+- **Bands.** The home page alternates text on a plain background with a large photograph: hero, the
+  idea, an image strip, features, the stays, a photo band, three steps, questions, footer. The stays use
+  a large photograph with a dark panel laid over its edge, sides alternating.
+- **Motion is optional.** A short rise on load and on scroll, written in CSS only. It is switched off
+  for visitors who ask their device to reduce motion, and browsers without scroll-linked animation just
+  show the finished page.
+- **No JavaScript for layout.** The questions open and close with the browser's own `<details>`
+  element, so the home page still ships no client code of its own.
+
+## Phones first
+
+Most visitors will arrive on a phone, so the narrow layout is the one held to a standard.
+
+- **Narrowest target: 360 pixels.** Styles are written for the phone and widened with `sm:` and `lg:`
+  prefixes, so the phone layout is the default rather than an afterthought.
+- **Menu without JavaScript.** Below the `lg` width the header links fold into a menu built on the
+  browser's own `<details>` element.
+- **Reserve is always in reach.** On a stay page a bar with the price and a Reserve button sticks to the
+  bottom of the screen. It uses `position: sticky`, not `fixed`, so it stays inside the page and never
+  covers the footer.
+- **Finger-sized targets.** Every button and stand-alone link is at least 44 pixels tall. Text links get
+  invisible padding above the words rather than a bigger font. Links inside a sentence are exempt.
+- **Show the thing, not a symbol of it.** The "What you get" grid uses the unwrapped panorama, a real
+  gallery picture, real figures and real keys instead of icons.
+
+## Testing
+
+| Kind | Where | What it proves |
+|---|---|---|
+| End-to-end | `tests/e2e/`, run by Playwright | A real browser opens the production build at a desktop size, a phone size and a narrow 360-pixel phone size. It checks that nothing for the tour downloads before the click, that the tour opens and closes by keyboard, that the fallback works without WebGL, that booking is reachable without the tour, that the honesty labels are present and that no page scrolls sideways. On the phone sizes it also checks the menu, the sticky Reserve bar, opening the tour by touch and the 44-pixel minimum for buttons and links |
+| Looking | `scripts/capture-pages.mjs` | Saves a full-page picture of every page at both sizes into `test-results/screens/`. Tests cannot judge whether a page looks right, so this is for human eyes |
+
+Playwright starts the site itself (`npm run build`, then `npm run start`) because the dev server behaves
+differently: it fetches the tour's code early. Unit tests arrive with the domain library in slice 2.
 
 ## Application
 
