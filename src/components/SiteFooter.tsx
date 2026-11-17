@@ -47,6 +47,12 @@ export async function SiteFooter() {
               A portfolio demo. Nothing here reserves a real room, and no payment is ever taken.
             </p>
             <Link href="/credits" className="text-link mt-5">Photo credits</Link>
+            {/* A real address: the one way to reach the maker, for example to help fund the project. */}
+            <h2 className={`${column} mt-10`}>Get in touch</h2>
+            <p className="mt-5 text-sm leading-relaxed text-white/70">
+              Like what you see, or want to help fund Book360?
+            </p>
+            <a href="mailto:hello@weblytics.co.za" className="text-link mt-3">hello@weblytics.co.za</a>
           </div>
         </div>
         <div className="mt-20 flex flex-col gap-4 border-t sm:flex-row sm:items-center sm:justify-between border-white/15 pt-6 text-xs text-white/50">
@@ -54,7 +60,7 @@ export async function SiteFooter() {
             <Mark className="size-7" />
             <Wordmark className="text-xs" />
           </span>
-          <span>Demo site. Photographs: Poly Haven, CC0.</span>
+          <span>A Weblytics project. Demo site. Photographs: Poly Haven, CC0.</span>
         </div>
       </div>
     </footer>
