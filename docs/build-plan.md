@@ -179,7 +179,7 @@ a real phone, a real WebGL-off browser, another person's view of the labels and 
 
 | Slice | Status | Evidence |
 |---|---|---|
-| 0 Feasibility prototype | In progress: prototype built, gates not yet run | [Desktop lab check](benchmarks/2026-11-13-slice-0-desktop.md) |
+| 0 Feasibility prototype | In progress: prototype built and deployed, gates not yet ticked | [Desktop lab check](benchmarks/2026-11-13-slice-0-desktop.md), [live deployment check](benchmarks/2026-11-17-live-deployment.md) |
 | 1 Skeleton and CI | Not started. Playwright and its first tests were added early, during slice 0, at the owner's request | |
 | 2 Domain library | Started early: dates, pricing, commission and availability with unit tests. Zod schemas not done | `tests/unit/` |
 | 3 Search and results | Started early: search, filters in the address, paging over 2,400 generated stays. Date filter not done | [Scale check](benchmarks/2026-11-14-catalogue-scale.md) |

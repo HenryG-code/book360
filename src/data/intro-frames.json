@@ -1,0 +1,13 @@
+{
+  "lg": {
+    "count": 150,
+    "size": 800,
+    "path": "/media/intro/lg"
+  },
+  "sm": {
+    "count": 76,
+    "size": 520,
+    "path": "/media/intro/sm"
+  },
+  "poster": "/media/intro/poster.webp"
+}

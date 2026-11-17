@@ -5,19 +5,24 @@
 // place and a price. Many stays share one room, because there are thirteen photographs and thousands
 // of stays. Every page that shows a stay says so.
 
-import type { Credit, Photo, Room, StayType } from "./types.ts";
+import type { Bed, Credit, Photo, Room, StayType } from "./types.ts";
+
+/** Counted from each photograph by eye. A house's photograph shows its living room, not its bedrooms. */
+const LIVING_ROOM: Bed[] = [];
 
 const credit = (asset: string, title: string, author: string): Credit => ({ asset, title, author, licence: "CC0 1.0" });
 
 const room = (
   key: string,
   type: StayType,
+  beds: Bed[],
   startYaw: number,
   alts: [string, string, string],
   source: Credit,
 ): Room => ({
   key,
   type,
+  beds,
   photos: alts.map((alt, index) => ({ src: `/media/${key}-${index + 1}.jpg`, alt, width: 1600, height: 1067 })) as [
     Photo,
     Photo,
@@ -36,9 +41,10 @@ export const rooms: Room[] = [
   room(
     "cliffside-suite",
     "Room",
+    [{ kind: "single", count: 2 }],
     112,
     [
-      "Two beds side by side with white linen and red cushions, under three pictures of boats",
+      "Two single beds side by side with white linen and red cushions, under three pictures of boats",
       "Sliding glass doors opening onto a tiled balcony, with trees and the sea beyond",
       "A patterned armchair and a small round table beneath a round wicker mirror, beside built-in cupboards",
     ],
@@ -47,6 +53,7 @@ export const rooms: Room[] = [
   room(
     "glass-house",
     "Studio",
+    [{ kind: "double", count: 1 }, { kind: "daybed", count: 1 }],
     -78,
     [
       "A bed with white linen in the corner of a glass-walled room, looking out over a dry valley",
@@ -58,6 +65,7 @@ export const rooms: Room[] = [
   room(
     "city-room",
     "Room",
+    [{ kind: "double", count: 1 }],
     112,
     [
       "A double bed with white pillows between dark wood panels, with a mirror above the headboard",
@@ -69,6 +77,7 @@ export const rooms: Room[] = [
   room(
     "twin-room",
     "Room",
+    [{ kind: "single", count: 2 }],
     -160,
     [
       "Two single beds with white linen and red bolsters, with bird prints on the wall above",
@@ -80,6 +89,7 @@ export const rooms: Room[] = [
   room(
     "ship-cabin",
     "Room",
+    [{ kind: "single", count: 1 }],
     -175,
     [
       "A narrow cabin bed with a gold cushion and a wall lamp",
@@ -91,6 +101,7 @@ export const rooms: Room[] = [
   room(
     "bright-studio",
     "Studio",
+    [{ kind: "double", count: 1 }],
     -15,
     [
       "A low bed with a rust-coloured throw in a white panelled studio, beside a wide window",
@@ -101,7 +112,8 @@ export const rooms: Room[] = [
   ),
   room(
     "green-loft",
-    "Studio",
+    "House",
+    LIVING_ROOM,
     -70,
     [
       "A green leather armchair and a dark writing desk against a deep green wall",
@@ -113,6 +125,7 @@ export const rooms: Room[] = [
   room(
     "country-lounge",
     "House",
+    LIVING_ROOM,
     -135,
     [
       "Cream sofas around a low table on a patterned rug, under a chandelier",
@@ -124,6 +137,7 @@ export const rooms: Room[] = [
   room(
     "garden-lounge",
     "House",
+    LIVING_ROOM,
     140,
     [
       "A dark green corner sofa under a landscape painting, around a glass coffee table",
@@ -135,6 +149,7 @@ export const rooms: Room[] = [
   room(
     "parlour",
     "House",
+    LIVING_ROOM,
     -75,
     [
       "A cream buttoned sofa under two landscape paintings, against floral wallpaper",
@@ -146,6 +161,7 @@ export const rooms: Room[] = [
   room(
     "timber-lounge",
     "House",
+    LIVING_ROOM,
     -22,
     [
       "A large brown corner sofa in a timber-lined lounge with a slatted ceiling",
@@ -157,6 +173,7 @@ export const rooms: Room[] = [
   room(
     "mountain-flat",
     "Studio",
+    [{ kind: "sofa bed", count: 1 }],
     -10,
     [
       "A sofa bed beside sliding doors that open onto a balcony facing a mountain",
@@ -168,6 +185,7 @@ export const rooms: Room[] = [
   room(
     "lake-house",
     "House",
+    LIVING_ROOM,
     -140,
     [
       "A dark wooden dining table with a lounge and open kitchen behind it",

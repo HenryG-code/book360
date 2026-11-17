@@ -9,6 +9,9 @@ The prototype exists and was checked once on a desktop: see the
 No gate is ticked, because that check used a simulated WebGL failure, no phone and no deployment, and
 nobody else has yet been asked whether the labels are clear.
 
+The site is now deployed: see the [live deployment check](benchmarks/2026-11-17-live-deployment.md).
+The fourth gate stays open until the panorama sizes are compared with the hosting plan's limits.
+
 - [ ] Booking flow works without the viewer
 - [ ] A sample panorama loads acceptably on mobile
 - [ ] Source photos and AI labels are clear

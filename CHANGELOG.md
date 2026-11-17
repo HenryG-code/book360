@@ -7,6 +7,15 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- Home page FAQ rewritten for owners and backers, with a contact button.
+- Guest numbers now follow the beds. Every photographed room lists the beds it shows; a stay sleeps
+  exactly what its beds hold, and its price per guest stays inside a band for its type. Stay pages show
+  the beds and bedrooms, and houses say their tour shows the living room.
+- A scroll-driven intro: a Blender animation of the Book360 pin plays as the home page scrolls, with the
+  words "Look Around First, Decide After" arriving one by one. Built from a script, with the `.blend`
+  working file in `brand/intro/`. A still image replaces it when reduced motion is requested.
+- Deployed to https://book360.vercel.app through Vercel's GitHub integration.
+- Browser tests can run against a deployed site with `BASE_URL`, and a script times a live deployment.
 - A catalogue of 2,400 stays behind a repository interface: three hand-written, the rest generated from
   a seeded recipe to test the site at scale. Ten more real 360° photographs, thirteen rooms in total.
 - A search page with filters, sorting and paging. Filters live in the address.

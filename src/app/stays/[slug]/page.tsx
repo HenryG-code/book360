@@ -6,6 +6,7 @@ import { RoomTour } from "@/components/RoomTour";
 import { SiteHeader } from "@/components/SiteHeader";
 import { StayCard } from "@/components/StayCard";
 import { repository } from "@/catalogue/repository";
+import { describeBeds } from "@/catalogue/beds";
 import { assetPage, findListing, formatMoney } from "@/data/listings";
 
 type Props = { params: Promise<{ slug: string }> };
@@ -34,10 +35,17 @@ export default async function StayPage({ params }: Props) {
       Source: Poly Haven, {listing.credit.licence}
     </a>
   );
+  // Guests always come from the beds, so the two can be shown side by side and never disagree.
+  const beds = describeBeds(listing.beds);
   const facts = [
-    { label: "Sleeps", value: `${listing.sleeps} guests` },
+    { label: "Sleeps", value: `${listing.sleeps} ${listing.sleeps === 1 ? "guest" : "guests"}` },
+    { label: "Beds", value: beds.charAt(0).toUpperCase() + beds.slice(1) },
+    { label: "Bedrooms", value: listing.bedrooms === 0 ? "Open-plan studio" : String(listing.bedrooms) },
     { label: "Where", value: listing.location },
-    { label: "Tour", value: "Full 360° photograph" },
+    {
+      label: "Tour",
+      value: listing.type === "House" ? "The living room in 360°. Bedrooms are not photographed" : "The whole room in 360°",
+    },
     { label: "Photos", value: "Cut from the same photograph" },
   ];
 

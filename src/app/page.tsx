@@ -2,6 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Mark } from "@/components/Mark";
 import { DragScroll } from "@/components/DragScroll";
+import { ScrollIntro } from "@/components/ScrollIntro";
 import { SiteHeader } from "@/components/SiteHeader";
 import { repository } from "@/catalogue/repository";
 import { formatMoney, rooms } from "@/data/listings";
@@ -18,26 +19,41 @@ const steps = [
   { title: "Reserve", text: "Go to booking whenever you like. In this demo nothing is charged or held." },
 ];
 
+// Written for the people this demo is meant to reach: owners who might want a site like it, and anyone
+// who might back the project. Every answer has to stay true of the code as it is today, so nothing here
+// promises a feature, a price or a deadline that does not exist yet.
 const questions = [
   {
-    q: "Are these real places to stay?",
-    a: "No. The stays, their names and their prices are invented for this demo. The photographs are of real rooms, released into the public domain, and those rooms are not connected to this site.",
+    q: "Can I get a site like this for my own place?",
+    a: "Yes. Book360 is built to be reused. Your rooms, photos, prices and words replace the demo ones, and the layout, 360° tours and booking flow carry over. A guesthouse, lodge, holiday home or small hotel all fit.",
   },
   {
-    q: "Can I actually book a room?",
-    a: "No. The booking page is a placeholder. Nothing is reserved and no payment is ever taken.",
+    q: "Do I need expensive equipment for the 360° photos?",
+    a: "No. A consumer 360° camera does the job, and many phones can capture a full panorama with the right app. One good panorama per room is enough, taken from where a guest would stand when they first walk in.",
   },
   {
-    q: "What if the 360° tour does not open?",
-    a: "The tour needs a browser feature called WebGL. Without it you see a short message, the photos stay on the page and the Reserve button still works.",
+    q: "Why would a 360° tour get me more bookings?",
+    a: "Guests worry about what the photos leave out: the size of the room, the view, the bathroom. A tour answers that before they ask, which builds trust and cuts the questions and disappointments that come after booking.",
   },
   {
-    q: "Why does the tour take a moment to open?",
-    a: "The viewer and the panorama are downloaded only when you ask for them. Everyone who never opens a tour gets a lighter, faster page.",
+    q: "Can it take real bookings and payments?",
+    a: "Not yet. In this demo the booking flow and the price check are real code, but nothing is reserved and no money moves. Live availability and a payment provider are the next step, and that is where funding or a first client makes the difference.",
   },
   {
-    q: "Where do the photographs come from?",
-    a: "From Poly Haven, under the CC0 public domain dedication. Each one is listed on the photo credits page.",
+    q: "Will it work for places other than stays?",
+    a: "Yes. Anything people want to see before they commit suits the same idea: event venues, wedding farms, offices to let, show houses, schools and gyms.",
+  },
+  {
+    q: "Is it fast on a phone?",
+    a: "Yes. Pages are built ahead of time and served from Vercel's global network. The 360° viewer and panoramas only download when someone opens a tour, so everyone else gets a light, quick page.",
+  },
+  {
+    q: "Are the stays on this site real?",
+    a: "No. The stays, names and prices are invented to show what the product can do. The photographs are of real rooms, released into the public domain, and those rooms are not connected to this site.",
+  },
+  {
+    q: "I want to fund, partner on or commission this. Who do I talk to?",
+    a: "Email hello@weblytics.co.za. Say a little about your place or your idea, and you will get a personal reply.",
   },
 ];
 
@@ -82,10 +98,13 @@ export default async function HomePage() {
       </section>
 
       {/* 2. The idea, fading into a wide photograph with one stay picked out. */}
-      <section id="idea" className="scroll-mt-10 bg-sand">
-        <div className="reveal mx-auto max-w-2xl px-6 pb-16 pt-28 text-center lg:pt-36">
-          <h2 className="display text-5xl sm:text-6xl lg:text-7xl">Look Around First, Decide After</h2>
-          <Mark className="mx-auto mt-10 size-7 text-navy" />
+      {/*
+        The intro animation: the pin drops in, the camera walks around it, and it settles into the logo,
+        all in step with scrolling. The text and photograph after it follow in the same sand band.
+      */}
+      <section className="bg-sand">
+        <ScrollIntro />
+        <div className="reveal mx-auto max-w-2xl px-6 pb-16 pt-10 text-center lg:pt-16">
           <p className="mx-auto mt-10 max-w-md text-[0.9375rem] leading-relaxed text-stone">
             A handful of photos shows a room at its best angle. A 360° tour shows the rest: the corner behind
             the door, the view from the bed, how far the desk is from the window.
@@ -355,8 +374,8 @@ export default async function HomePage() {
       {/* 8. Questions. <details> opens and closes without any JavaScript. */}
       <section id="questions" className="on-dark scroll-mt-10 bg-navy-deep px-6 py-28 text-white lg:py-36">
         <div className="reveal mx-auto max-w-3xl text-center">
-          <p className="eyebrow text-white/55">Your questions</p>
-          <h2 className="display mt-6 text-5xl sm:text-6xl">Asked Often, Answered Plainly</h2>
+          <p className="eyebrow text-white/55">Want one like this?</p>
+          <h2 className="display mt-6 text-5xl sm:text-6xl">Bring Your Place to Life</h2>
         </div>
         <div className="mx-auto mt-16 max-w-2xl border-t border-white/20">
           {questions.map((item, index) => (
@@ -370,11 +389,19 @@ export default async function HomePage() {
               <p className="max-w-xl pb-7 text-sm leading-relaxed text-white/70">{item.a}</p>
             </details>
           ))}
-          <p className="mt-10 text-center">
-            <Link href="/credits" className="text-link">
-              Photo credits
-            </Link>
-          </p>
+          <div className="mt-14 text-center">
+            <a
+              href="mailto:hello@weblytics.co.za?subject=Book360"
+              className="inline-block bg-white px-8 py-4 text-xs font-semibold uppercase tracking-[0.2em] text-navy-deep transition-colors hover:bg-sky"
+            >
+              Get in touch
+            </a>
+            <p className="mt-8">
+              <Link href="/credits" className="text-link">
+                Photo credits
+              </Link>
+            </p>
+          </div>
         </div>
       </section>
     </main>

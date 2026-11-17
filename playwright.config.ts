@@ -6,6 +6,11 @@ import { defineConfig, devices } from "@playwright/test";
 // the dev server fetches the tour's code early, and the production build is what visitors really get.
 const PORT = 3220;
 
+// Set BASE_URL to test a deployed copy instead, for example:
+//   BASE_URL=https://book360.vercel.app npx playwright test
+// Playwright then skips building and starting the site, and drives the real one.
+const BASE_URL = process.env.BASE_URL;
+
 export default defineConfig({
   testDir: "tests/e2e",
   fullyParallel: true,
@@ -13,8 +18,11 @@ export default defineConfig({
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 1 : 0,
   reporter: [["list"], ["html", { open: "never" }]],
+  // A live site sits across the internet and may start a server or fetch a file from its origin on the
+  // first request, so it gets more time per check than a server on this computer.
+  expect: { timeout: BASE_URL ? 15_000 : 5_000 },
   use: {
-    baseURL: `http://localhost:${PORT}`,
+    baseURL: BASE_URL ?? `http://localhost:${PORT}`,
     // Keeps a step-by-step recording of any test that fails, to open with `npx playwright show-trace`.
     trace: "retain-on-failure",
   },
@@ -26,7 +34,9 @@ export default defineConfig({
     { name: "small-phone", use: { ...devices["Pixel 7"], viewport: { width: 360, height: 740 } } },
   ],
   // Playwright builds and starts the site itself, then stops it when the tests finish.
-  webServer: {
+  webServer: BASE_URL
+    ? undefined
+    : {
     command: `npm run build && npm run start -- --port ${PORT}`,
     url: `http://localhost:${PORT}`,
     reuseExistingServer: !process.env.CI,

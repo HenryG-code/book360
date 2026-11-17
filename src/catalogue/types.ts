@@ -21,10 +21,21 @@ export type Tour = {
 
 export type StayType = "Room" | "Studio" | "House";
 
+/** Kinds of bed, and how many people each one sleeps. */
+export type BedKind = "king" | "queen" | "double" | "single" | "daybed" | "sofa bed";
+
+export type Bed = { kind: BedKind; count: number };
+
 /** A photographed space: the real part of a stay. */
 export type Room = {
   key: string;
   type: StayType;
+  /**
+   * The beds the photograph shows. For a room or studio this is the whole sleeping space, so every stay
+   * using the photograph has exactly these beds. A house's photograph shows its living room, so its
+   * bedrooms are listed per stay instead, and this is empty.
+   */
+  beds: Bed[];
   photos: [Photo, Photo, Photo];
   tour: Tour;
   credit: Credit;
@@ -47,7 +58,11 @@ export type Listing = {
   nightlyRateMinor: number;
   cleaningFeeMinor: number;
   currency: "ZAR";
+  /** Always worked out from the beds (see src/catalogue/beds.ts), never chosen separately. */
   sleeps: number;
+  beds: Bed[];
+  /** Separate bedrooms. A room counts as one; a studio is open plan, so it has none. */
+  bedrooms: number;
   amenities: string[];
   /** Hand-written stays shown on the home page. */
   featured: boolean;
