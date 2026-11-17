@@ -87,12 +87,14 @@ flowchart TD
 |---|---|---|
 | Repository | `src/catalogue/types.ts`, `repository.ts` | Pages ask an interface for stays and never touch the data. A database can replace the generator without changing a page. See [ADR 0002](adr/0002-catalogue-and-rendering-at-scale.md) |
 | Rooms and stays | `src/catalogue/rooms.ts`, `generate.ts` | A room is real (one photograph). A stay is invented (name, place, price) and points at a room. Thirteen rooms serve thousands of stays |
+| Beds and capacity | `src/catalogue/beds.ts` | A stay's guest count is never chosen: it is the sum of its beds (doubles and bigger 2, singles and daybeds 1, a sofa bed 2 when listed). Rooms and studios take exactly the beds their photograph shows; a house's photograph is its living room, so its 2 to 4 bedrooms are listed. Price per guest per night must sit in a band for the type (Room R700 to R1,500, Studio R600 to R1,200, House R450 to R800). Unit tests check every stay |
 | Search | `src/app/stays/page.tsx`, `src/catalogue/query.ts` | A plain GET form puts the filters in the address, so a search can be shared, reloaded and walked with Back. One page of 24 is sent, whatever the catalogue size |
 | Stay pages | `src/app/stays/[slug]/` | Featured stays are built ahead of time; the rest on first visit, then kept. Build time does not grow with the catalogue |
 | Domain rules | `src/domain/` | Pure functions with no framework imports, so the browser, the server and the unit tests all run the same code |
 | Booking | `src/components/BookingForm.tsx`, `src/app/api/bookings/route.ts` | The browser shows a live price; the server recalculates it and its answer is the one saved. The browser never sends an amount. See [ADR 0003](adr/0003-booking-and-commission.md) |
 | Saved bookings | `src/lib/bookings.ts` | Browser storage, wrapped so a blocked or full store means "no bookings", not a broken page |
 | Commission | `src/domain/pricing.ts`, `src/app/hosts/` | 3% of the room charge, in whole cents, from the host's side. One function serves the booking flow and the hosts' calculator |
+| Scroll intro | `src/components/ScrollIntro.tsx`, `brand/intro/` | A Blender animation of the logo, pre-rendered to frames and drawn on a canvas in step with scrolling. Real text for the headline, a still image when motion is reduced. See [ADR 0004](adr/0004-scroll-driven-intro-animation.md) |
 | Scroll effects | `src/app/globals.css`, `src/components/DragScroll.tsx` | CSS scroll-linked animations run without JavaScript and are switched off for reduced motion and unsupported browsers. The draggable strip adds code only for mouse and keyboard; phones use native scrolling |
 
 Planned connections to outside services are in [integrations](integrations.md).
@@ -159,7 +161,13 @@ and transfer limits, so validate a real exported scene against the current plan 
 
 ## Deployment
 
-Pull requests run lint, type checks, unit tests, build and Playwright. Vercel creates previews with Git
+Today: Vercel's GitHub integration builds every push. A push to `main` updates the production site,
+which is served on a custom subdomain through a DNS CNAME record pointing at Vercel. Every other branch
+gets its own preview address, so a change can be checked on a phone before it is merged. Vercel, not
+the repository, holds the hosting settings, so nothing about the domain or account lives in this code.
+There is no CI workflow yet; tests run locally with `make test`.
+
+The target once CI exists: pull requests run lint, type checks, unit tests, build and Playwright. Vercel creates previews with Git
 Fork Protection enabled and no sensitive variables. Merging to the production branch deploys. Roll back
 by restoring a known-good deployment, and record the asset version with the application version.
 

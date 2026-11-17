@@ -35,9 +35,10 @@ test.describe("home page", () => {
 
   test("a question opens to show its answer", async ({ page }) => {
     await page.goto("/");
-    const answer = page.getByText("The booking page is a placeholder.");
+    // The first question starts open, so this uses a later one that starts closed.
+    const answer = page.getByText("Not yet. In this demo the booking flow");
     await expect(answer).toBeHidden();
-    await page.getByText("Can I actually book a room?").click();
+    await page.getByText("Can it take real bookings and payments?").click();
     await expect(answer).toBeVisible();
   });
 });
@@ -290,4 +291,41 @@ test.describe("on a phone", () => {
       expect(tooSmall).toEqual([]);
     });
   }
+});
+
+test.describe("scroll intro", () => {
+  test("plays frames as the page scrolls and ends with the whole headline", async ({ page, isMobile }) => {
+    const urls = recordRequests(page);
+    await page.goto("/");
+    const section = page.locator(".scroll-intro");
+    await expect(page.getByRole("heading", { level: 2, name: "Look Around First, Decide After" })).toBeAttached();
+
+    // Scroll through the section in steps, as a visitor would.
+    const box = await section.boundingBox();
+    const viewport = page.viewportSize()!;
+    for (let step = 0; step <= 10; step++) {
+      await page.evaluate((y) => window.scrollTo(0, y), box!.y + (step / 10) * (box!.height - viewport.height));
+      await page.waitForTimeout(80);
+    }
+    await expect(section).toHaveAttribute("data-animated", "true");
+    await expect(page.locator(".scroll-intro-canvas")).toBeVisible();
+    await expect(page.locator(".scroll-intro-word").last()).toHaveCSS("opacity", "1");
+
+    // Phones get the smaller set of frames and never download the large one.
+    const frames = urls.filter((url) => url.includes("/media/intro/"));
+    expect(frames.some((url) => url.includes(isMobile ? "/intro/sm/" : "/intro/lg/"))).toBe(true);
+    expect(frames.some((url) => url.includes(isMobile ? "/intro/lg/" : "/intro/sm/"))).toBe(false);
+  });
+
+  test("with reduced motion it is a still image and the full headline", async ({ browser }) => {
+    const context = await browser.newContext({ reducedMotion: "reduce" });
+    const page = await context.newPage();
+    const urls = recordRequests(page);
+    await page.goto("/", { waitUntil: "networkidle" });
+    await expect(page.locator(".scroll-intro-poster")).toBeVisible();
+    await expect(page.locator(".scroll-intro-canvas")).toBeHidden();
+    for (const word of await page.locator(".scroll-intro-word").all()) await expect(word).toHaveCSS("opacity", "1");
+    expect(urls.filter((url) => /\/media\/intro\/(lg|sm)\//.test(url))).toEqual([]);
+    await context.close();
+  });
 });

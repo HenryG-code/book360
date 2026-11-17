@@ -117,6 +117,58 @@ summary::-webkit-details-marker {
 }
 
 /*
+  The scroll intro on the home page (src/components/ScrollIntro.tsx).
+
+  By default, which is what visitors without the script or with reduced motion get, the section is an
+  ordinary block: the full headline above a still image. Only when motion is allowed does it become
+  three screens tall with a sticky stage inside, and the words wait for their turn.
+
+  --p is how far through the section the visitor has scrolled (0 to 1), set by the script.
+  --at is the point at which one word starts to appear. Each word then takes 8% of the scroll to arrive.
+*/
+.scroll-intro {
+  --p: 1;
+}
+
+.scroll-intro-canvas {
+  display: none;
+}
+
+.scroll-intro[data-animated="true"] .scroll-intro-canvas {
+  display: block;
+}
+
+.scroll-intro[data-animated="true"] .scroll-intro-poster {
+  visibility: hidden;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .scroll-intro {
+    height: 260svh;
+  }
+
+  .scroll-intro-stage {
+    position: sticky;
+    top: 0;
+    height: 100svh;
+  }
+
+  .scroll-intro-word {
+    --t: clamp(0, calc((var(--p) - var(--at)) / 0.08), 1);
+    display: inline-block;
+    opacity: var(--t);
+    transform: translateY(calc((1 - var(--t)) * 0.45em));
+    filter: blur(calc((1 - var(--t)) * 10px));
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
+  .scroll-intro {
+    height: 320svh;
+  }
+}
+
+/*
   Scroll-linked effects. Each is tied to how far the page has scrolled, not to a clock, and the browser
   runs them without any JavaScript, off the main thread, so they cannot make scrolling stutter.
   They are wrapped twice: only for visitors who allow motion, and only in browsers that support them.

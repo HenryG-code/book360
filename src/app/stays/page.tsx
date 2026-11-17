@@ -62,7 +62,7 @@ export default async function StaysPage({ searchParams }: { searchParams: Promis
               <label htmlFor="guests" className={label}>Guests</label>
               <select id="guests" name="guests" defaultValue={query.guests ?? ""} className={field}>
                 <option value="">Any</option>
-                {[1, 2, 3, 4, 6, 8].map((guests) => <option key={guests} value={guests}>{guests}+</option>)}
+                {[1, 2, 3, 4, 6, 8, 10].map((guests) => <option key={guests} value={guests}>{guests}+</option>)}
               </select>
             </div>
             <div>

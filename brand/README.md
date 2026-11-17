@@ -25,6 +25,15 @@ SVG is a text format for drawings, so the template opens two ways:
 The wordmark is live text set in Inter Medium. exactly. Convert the text to outlines before sending a file to a printer, so it does not depend on the
 font being installed there.
 
+## Intro animation
+
+`intro/build_intro.py` turns the mark into a 3D scene in Blender and animates it: the pin drops in, the
+ring opens, the camera walks a full circle around it and settles on the logo's own angle.
+`intro/book360-intro.blend` is the working file it saves; open it in Blender to try changes by eye.
+
+The script is the source of truth. Changes made by hand in the `.blend` file are kept only if you
+render from that file yourself; running the script again rebuilds the scene from scratch.
+
 ## Where the app uses it
 
 | Place | File |

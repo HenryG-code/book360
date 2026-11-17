@@ -17,6 +17,8 @@ assets. Docker and Kubernetes are unnecessary for the first version.
 2. First usable release: responsive search, listing, tour or gallery, then simulated confirmation
 3. Later: offline AI asset integration, host tools, optional real backend
 
+**Live demo:** https://book360.vercel.app. Deployed by Vercel from `main` on every merge.
+
 ## Quick start
 
 Needs Node.js 20.9 or newer.
@@ -40,6 +42,13 @@ npm run test:e2e
 `npm run qa:screens -- http://localhost:3000` saves a picture of every page, at desktop and phone sizes,
 into `test-results/screens/` while the dev server is running.
 
+Rebuilding the intro animation needs Blender 5.2. It takes about 8 minutes:
+
+```bash
+"C:/Program Files/Blender Foundation/Blender 5.2/blender.exe" -b --factory-startup -P brand/intro/build_intro.py -- --render all
+npm run media:intro
+```
+
 Other checks:
 
 ```bash
@@ -47,6 +56,9 @@ npm run test:unit
 npm run bench
 npm test
 ```
+
+`BASE_URL=https://book360.vercel.app npx playwright test` runs the browser tests against the live site
+instead of a local one, and `npm run bench:live -- https://book360.vercel.app` times it.
 
 `test:unit` runs the booking rules in under a second. `bench` times the catalogue at 2,400, 50,000 and
 200,000 stays. `npm test` runs the type check, the unit tests and the browser tests in order.

@@ -26,6 +26,12 @@ picture can be checked.
 
 Source file: the "Tonemapped JPG" download of each asset, 8192 x 4096 pixels, fetched on 2026-11-13.
 
+## Intro animation
+
+The animation at the top of the home page (`public/media/intro/`) is original work for this project,
+rendered in Blender from the Book360 logo by `brand/intro/build_intro.py`. It uses no photographs or
+third-party models.
+
 ## What was changed
 
 `scripts/prepare-media.mjs` makes every published file from those sources:

@@ -62,6 +62,9 @@ public/build/
 Thumbs.db
 .claude/settings.local.json
 
+# Backups Blender writes next to a .blend file each time it is saved.
+*.blend1
+
 # Full-size source photographs. Only the web-sized copies in public/media are committed.
 media-src/
 
