@@ -1,0 +1,38 @@
+# Dependabot watches the libraries this project depends on and opens a pull request when one has a
+# newer version. That keeps security fixes from being missed, without anyone checking by hand.
+#
+# This file controls version updates. Security alerts are switched on separately in the repository's
+# settings on GitHub.
+version: 2
+updates:
+  # The npm packages listed in package.json.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    # At most five update pull requests open at once, so they never pile up.
+    open-pull-requests-limit: 5
+    commit-message:
+      prefix: chore
+    groups:
+      # Small, low-risk updates arrive together as one pull request instead of a dozen.
+      minor-and-patch:
+        update-types:
+          - minor
+          - patch
+    ignore:
+      # TypeScript is held on version 5 on purpose, because Next.js does not support the next major
+      # version yet. Remove this once it does.
+      - dependency-name: typescript
+        update-types:
+          - version-update:semver-major
+
+  # The actions used by CI workflows. There are none yet; this is ready for when slice 1 adds them.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: chore

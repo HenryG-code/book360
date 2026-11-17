@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/SiteHeader";
-import { assetPage, heroCredit, listings, type Credit } from "@/data/listings";
+import { assetPage, heroCredit, rooms, type Credit } from "@/data/listings";
 
 export const metadata: Metadata = { title: "Photo credits" };
 
@@ -9,7 +9,7 @@ export const metadata: Metadata = { title: "Photo credits" };
 export default function CreditsPage() {
   const rows: { used: string; credit: Credit }[] = [
     { used: "Home page", credit: heroCredit },
-    ...listings.map((listing) => ({ used: listing.name, credit: listing.credit })),
+    ...rooms.map((room) => ({ used: `${room.type} photograph`, credit: room.credit })),
   ];
 
   return (

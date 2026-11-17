@@ -40,6 +40,17 @@ npm run test:e2e
 `npm run qa:screens -- http://localhost:3000` saves a picture of every page, at desktop and phone sizes,
 into `test-results/screens/` while the dev server is running.
 
+Other checks:
+
+```bash
+npm run test:unit
+npm run bench
+npm test
+```
+
+`test:unit` runs the booking rules in under a second. `bench` times the catalogue at 2,400, 50,000 and
+200,000 stays. `npm test` runs the type check, the unit tests and the browser tests in order.
+
 Versions in use: Next.js 16.4.6, React 19.3.1, Tailwind CSS 4.3.5, Marzipano 0.10.2, TypeScript 5.9, Playwright 1.65.0.
 
 ## Documentation

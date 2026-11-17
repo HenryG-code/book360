@@ -4,25 +4,31 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { RoomTour } from "@/components/RoomTour";
 import { SiteHeader } from "@/components/SiteHeader";
-import { assetPage, findListing, formatMoney, listings } from "@/data/listings";
+import { StayCard } from "@/components/StayCard";
+import { repository } from "@/catalogue/repository";
+import { assetPage, findListing, formatMoney } from "@/data/listings";
 
 type Props = { params: Promise<{ slug: string }> };
 
 // Tells Next.js the full list of stays at build time, so each page is plain pre-built HTML.
-export const generateStaticParams = () => listings.map(({ slug }) => ({ slug }));
-export const dynamicParams = false;
+//
+// With thousands of stays, building every page up front would make each deploy slower as the
+// catalogue grows. So only the hand-written stays are built ahead of time. Any other stay is built the
+// first time someone asks for it, then kept and served as a ready-made page from then on.
+export const generateStaticParams = async () => (await repository.featured()).map(({ slug }) => ({ slug }));
+export const dynamicParams = true;
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const listing = findListing((await params).slug);
+  const listing = await findListing((await params).slug);
   return { title: listing?.name ?? "Stay not found" };
 }
 
 export default async function StayPage({ params }: Props) {
-  const listing = findListing((await params).slug);
+  const listing = await findListing((await params).slug);
   if (!listing) notFound();
 
   const price = formatMoney(listing.nightlyRateMinor, listing.currency);
-  const others = listings.filter((other) => other.slug !== listing.slug);
+  const others = await repository.related(listing, 3);
   const source = (
     <a href={assetPage(listing.credit)} className="underline" rel="noreferrer">
       Source: Poly Haven, {listing.credit.licence}
@@ -135,7 +141,8 @@ export default async function StayPage({ params }: Props) {
               <p className="border-l border-navy pl-5 text-sm leading-relaxed text-stone lg:col-span-5 lg:col-start-8">
                 <strong className="font-medium text-ink">Real photographs, invented stay.</strong> These pictures are
                 cut from the same 360° photograph as the tour, so they show the same room. The stay&apos;s name,
-                place and price are made up for this demo. {source}
+                place and price are made up for this demo
+                {listing.featured ? "" : ", and other test stays share these photographs"}. {source}
               </p>
             </div>
             {/* One large picture and two smaller ones beside it: a more deliberate shape than three equal tiles. */}
@@ -171,32 +178,20 @@ export default async function StayPage({ params }: Props) {
         <section aria-labelledby="more-heading" className="mx-auto max-w-7xl px-6 py-24 lg:px-10 lg:py-32">
           <p className="eyebrow text-center text-stone">Keep looking</p>
           <h2 id="more-heading" className="display mt-6 text-center text-5xl sm:text-6xl">
-            Other Stays
+            More in {listing.location}
           </h2>
-          <ul className="mt-14 grid gap-8 md:grid-cols-2">
+          <ul className="mt-14 grid gap-x-6 gap-y-12 sm:grid-cols-2 lg:grid-cols-3">
             {others.map((other) => (
-              <li key={other.slug}>
-                <Link href={`/stays/${other.slug}`} className="group block">
-                  <div className="relative aspect-[3/2] overflow-hidden">
-                    <Image
-                      src={other.photos[0].src}
-                      alt=""
-                      fill
-                      sizes="(min-width: 768px) 50vw, 100vw"
-                      className="object-cover transition-transform duration-[1400ms] ease-out group-hover:scale-[1.04]"
-                    />
-                  </div>
-                  <p className="eyebrow mt-6 text-stone">
-                    {other.kicker} · {other.location}
-                  </p>
-                  <p className="display mt-3 text-3xl">{other.name}</p>
-                  <p className="mt-2 text-sm text-stone">
-                    From {formatMoney(other.nightlyRateMinor, other.currency)} a night
-                  </p>
-                </Link>
+              <li key={other.id}>
+                <StayCard listing={other} sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" />
               </li>
             ))}
           </ul>
+          <p className="mt-14 text-center">
+            <Link href="/stays" className="text-link">
+              Browse all stays
+            </Link>
+          </p>
         </section>
       </main>
     </>

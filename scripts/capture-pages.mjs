@@ -20,6 +20,10 @@ const PAGES = [
   ["stay-glass-house", "/stays/glass-house"],
   ["book", "/stays/cliffside-suite/book"],
   ["credits", "/credits"],
+  ["search", "/stays"],
+  ["search-filtered", "/stays?region=Whale+Coast&type=House"],
+  ["hosts", "/hosts"],
+  ["bookings", "/bookings"],
 ];
 
 const SIZES = [

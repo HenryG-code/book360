@@ -1,11 +1,12 @@
 import Link from "next/link";
 import { Mark, Wordmark } from "@/components/Mark";
-import { listings } from "@/data/listings";
+import { repository } from "@/catalogue/repository";
 
 const column = "eyebrow text-white/45";
 const item = "block py-3 text-sm text-white/80 transition-colors hover:text-white";
 
-export function SiteFooter() {
+export async function SiteFooter() {
+  const listings = await repository.featured();
   return (
     <footer className="on-dark relative overflow-hidden bg-ink text-white">
       {/* A very large, very faint copy of the mark. It is decoration only. */}
@@ -25,6 +26,8 @@ export function SiteFooter() {
               <li><Link href="/#idea" className={item}>The idea</Link></li>
               <li><Link href="/#how" className={item}>How it works</Link></li>
               <li><Link href="/#questions" className={item}>Questions</Link></li>
+              <li><Link href="/hosts" className={item}>For hosts</Link></li>
+              <li><Link href="/bookings" className={item}>My bookings</Link></li>
             </ul>
           </div>
           <div className="lg:col-span-2">
@@ -35,6 +38,7 @@ export function SiteFooter() {
                   <Link href={`/stays/${listing.slug}`} className={item}>{listing.name}</Link>
                 </li>
               ))}
+              <li><Link href="/stays" className={item}>All stays</Link></li>
             </ul>
           </div>
           <div className="lg:col-span-3">

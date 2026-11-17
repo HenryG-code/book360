@@ -3,9 +3,10 @@ import { Mark, Wordmark } from "@/components/Mark";
 
 const links = [
   { href: "/#idea", label: "The idea" },
-  { href: "/#stays", label: "Stays" },
+  { href: "/stays", label: "Stays" },
   { href: "/#how", label: "How it works" },
-  { href: "/#questions", label: "Questions" },
+  { href: "/hosts", label: "For hosts" },
+  { href: "/bookings", label: "My bookings" },
 ];
 
 /** `overlay` places the header on top of a dark hero image; otherwise it sits on the page background. */
@@ -30,7 +31,7 @@ export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
             </li>
           ))}
         </ul>
-        <Link href="/#stays" className="hidden items-center gap-2.5 py-3 text-[0.8125rem] lg:flex">
+        <Link href="/stays" className="hidden items-center gap-2.5 py-3 text-[0.8125rem] lg:flex">
           <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
           Find a stay
         </Link>

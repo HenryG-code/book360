@@ -173,14 +173,18 @@ complete.
 
 ## Progress
 
+**Order changed on 2026-11-14.** At the owner's request, parts of slices 2, 3 and 6 were built before
+slice 0's gates were run, to test whether the design scales. Slice 0 is still open: its four gates need
+a real phone, a real WebGL-off browser, another person's view of the labels and a preview deployment.
+
 | Slice | Status | Evidence |
 |---|---|---|
 | 0 Feasibility prototype | In progress: prototype built, gates not yet run | [Desktop lab check](benchmarks/2026-11-13-slice-0-desktop.md) |
 | 1 Skeleton and CI | Not started. Playwright and its first tests were added early, during slice 0, at the owner's request | |
-| 2 Domain library | Not started | |
-| 3 Search and results | Not started | |
+| 2 Domain library | Started early: dates, pricing, commission and availability with unit tests. Zod schemas not done | `tests/unit/` |
+| 3 Search and results | Started early: search, filters in the address, paging over 2,400 generated stays. Date filter not done | [Scale check](benchmarks/2026-11-14-catalogue-scale.md) |
 | 4 Listing details | Not started | |
 | 5 Room tour | Not started | |
-| 6 Booking flow | Not started | |
+| 6 Booking flow | Started early: demo flow with a server price check. Favourites and storage-disabled run not done | [ADR 0003](adr/0003-booking-and-commission.md) |
 | 7 Accessibility and performance | Not started | |
 | 8 First release | Not started | |

@@ -54,6 +54,49 @@ serif (Gloock) for headings and generous empty space.
 - **No JavaScript for layout.** The questions open and close with the browser's own `<details>`
   element, so the home page still ships no client code of its own.
 
+## How the parts fit
+
+```mermaid
+flowchart TD
+  subgraph browser["Browser"]
+    pages["Pages (server-rendered HTML)"]
+    form["BookingForm, BookingsList (client components)"]
+    store["Browser storage: confirmed bookings"]
+  end
+  subgraph server["Next.js server"]
+    search["/stays: search page"]
+    stay["/stays/[slug]: built on first visit, then kept"]
+    api["POST /api/bookings: price check"]
+  end
+  subgraph shared["Shared code, no framework"]
+    domain["src/domain: dates, pricing, commission, availability, calendar"]
+    repo["src/catalogue: ListingRepository"]
+  end
+  gen["Seeded generator + 13 photographed rooms"]
+  pages --> search --> repo
+  pages --> stay --> repo
+  form -->|stay, dates, guests| api
+  api --> repo
+  api --> domain
+  form --> domain
+  form --> store
+  repo --> gen
+```
+
+| Piece | Where | Why it is built this way |
+|---|---|---|
+| Repository | `src/catalogue/types.ts`, `repository.ts` | Pages ask an interface for stays and never touch the data. A database can replace the generator without changing a page. See [ADR 0002](adr/0002-catalogue-and-rendering-at-scale.md) |
+| Rooms and stays | `src/catalogue/rooms.ts`, `generate.ts` | A room is real (one photograph). A stay is invented (name, place, price) and points at a room. Thirteen rooms serve thousands of stays |
+| Search | `src/app/stays/page.tsx`, `src/catalogue/query.ts` | A plain GET form puts the filters in the address, so a search can be shared, reloaded and walked with Back. One page of 24 is sent, whatever the catalogue size |
+| Stay pages | `src/app/stays/[slug]/` | Featured stays are built ahead of time; the rest on first visit, then kept. Build time does not grow with the catalogue |
+| Domain rules | `src/domain/` | Pure functions with no framework imports, so the browser, the server and the unit tests all run the same code |
+| Booking | `src/components/BookingForm.tsx`, `src/app/api/bookings/route.ts` | The browser shows a live price; the server recalculates it and its answer is the one saved. The browser never sends an amount. See [ADR 0003](adr/0003-booking-and-commission.md) |
+| Saved bookings | `src/lib/bookings.ts` | Browser storage, wrapped so a blocked or full store means "no bookings", not a broken page |
+| Commission | `src/domain/pricing.ts`, `src/app/hosts/` | 3% of the room charge, in whole cents, from the host's side. One function serves the booking flow and the hosts' calculator |
+| Scroll effects | `src/app/globals.css`, `src/components/DragScroll.tsx` | CSS scroll-linked animations run without JavaScript and are switched off for reduced motion and unsupported browsers. The draggable strip adds code only for mouse and keyboard; phones use native scrolling |
+
+Planned connections to outside services are in [integrations](integrations.md).
+
 ## Phones first
 
 Most visitors will arrive on a phone, so the narrow layout is the one held to a standard.
@@ -78,7 +121,7 @@ Most visitors will arrive on a phone, so the narrow layout is the one held to a 
 | Looking | `scripts/capture-pages.mjs` | Saves a full-page picture of every page at both sizes into `test-results/screens/`. Tests cannot judge whether a page looks right, so this is for human eyes |
 
 Playwright starts the site itself (`npm run build`, then `npm run start`) because the dev server behaves
-differently: it fetches the tour's code early. Unit tests arrive with the domain library in slice 2.
+differently: it fetches the tour's code early. Unit tests in `tests/unit/` cover the domain rules, the catalogue generator, the calendar file and the address parser. They run with Node's built-in test runner, which needs no extra package.
 
 ## Application
 

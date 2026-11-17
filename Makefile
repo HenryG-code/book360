@@ -18,8 +18,7 @@ stop-dev:
 
 # Run type checks and the Playwright end-to-end tests. Lint and unit tests join in slices 1 and 2
 test:
-	npm run typecheck
-	npm run test:e2e
+	npm test
 
 # Create a production build
 build:

@@ -1,8 +1,10 @@
 import Image from "next/image";
 import Link from "next/link";
 import { Mark } from "@/components/Mark";
+import { DragScroll } from "@/components/DragScroll";
 import { SiteHeader } from "@/components/SiteHeader";
-import { formatMoney, listings } from "@/data/listings";
+import { repository } from "@/catalogue/repository";
+import { formatMoney, rooms } from "@/data/listings";
 
 // A server component: this page is rendered to HTML on the server and ships no viewer code at all.
 // The 360 tour lives on the stay page and is only downloaded after a click there.
@@ -52,15 +54,18 @@ function Key({ children, wide = false }: { children: React.ReactNode; wide?: boo
   );
 }
 
-export default function HomePage() {
+export default async function HomePage() {
+  const [listings, total] = await Promise.all([repository.featured(), repository.count()]);
   const featured = listings[0]!;
+  const count = new Intl.NumberFormat("en-ZA").format(total);
+  const pictures = rooms.length + 1; // every room photograph, plus the home page one
 
   return (
     <main>
       {/* 1. Hero: one photograph, one sentence. */}
       <section className="relative flex min-h-[calc(100svh-2rem)] items-center justify-center overflow-hidden bg-navy-deep">
         <SiteHeader overlay />
-        <Image src="/media/home-hero.jpg" alt="" fill priority sizes="100vw" className="object-cover" />
+        <Image src="/media/home-hero.jpg" alt="" fill priority sizes="100vw" className="parallax object-cover" />
         {/* A blue wash deepens the pale sky so white text stays readable on it. */}
         <div className="absolute inset-0 bg-gradient-to-b from-navy-deep/70 via-navy/35 to-navy-deep/55" />
         <div className="on-dark relative px-6 pb-10 text-center text-white">
@@ -144,16 +149,24 @@ export default function HomePage() {
                 turn to look at any part of it.
               </p>
             </div>
-            <div className="relative mt-auto aspect-[2/1] sm:aspect-[25/7]">
-              <Image
-                src="/media/glass-house-strip.jpg"
-                alt="A 360° photograph of the Glass House laid flat: bed, windows, dining table and fireplace side by side in one wide strip"
-                fill
-                sizes="(min-width: 1024px) 66vw, 100vw"
-                className="object-cover"
-              />
-              <span className="absolute left-4 top-4 bg-white/90 px-3 py-1.5 text-[0.6875rem] font-medium tracking-[0.18em] text-ink">
-                0° — 360°
+            {/*
+              The strip is wider than its frame, so there is always more to one side. Drag it, swipe it or
+              use the arrow keys: a small taste of turning around in the tour.
+            */}
+            <div className="relative mt-auto">
+              <DragScroll label="A 360° photograph laid flat. Drag or use the arrow keys to look along it.">
+                <div className="relative aspect-[25/7] w-[260%] sm:w-[170%]">
+                  <Image
+                    src="/media/glass-house-strip.jpg"
+                    alt="A 360° photograph of the Glass House laid flat: bed, windows, dining table and fireplace side by side in one wide strip"
+                    fill
+                    sizes="(min-width: 1024px) 110vw, 260vw"
+                    className="pointer-events-none select-none object-cover"
+                  />
+                </div>
+              </DragScroll>
+              <span className="pointer-events-none absolute left-4 top-4 bg-white/90 px-3 py-1.5 text-[0.6875rem] font-medium tracking-[0.18em] text-ink">
+                ← Drag to look along →
               </span>
             </div>
           </li>
@@ -232,11 +245,11 @@ export default function HomePage() {
           <li className="reveal on-dark flex flex-col bg-ocean p-7 text-white sm:p-8 lg:col-span-3">
             <p className="eyebrow text-white">06 · Sources</p>
             <p className="display mt-6 text-6xl">
-              4 <span className="text-3xl">of 4</span>
+              {pictures} <span className="text-3xl">of {pictures}</span>
             </p>
             <h3 className="display mt-6 text-2xl lg:mt-auto lg:pt-6">Every Picture Credited</h3>
             <p className="mt-2 text-sm leading-relaxed text-white">
-              Four photographs, four named sources.
+              Every photograph on the site has a named source.
             </p>
             <Link href="/credits" className="text-link self-start">
               See the credits
@@ -250,7 +263,7 @@ export default function HomePage() {
         <div className="reveal mx-auto max-w-3xl text-center">
           <p className="eyebrow text-stone">The stays</p>
           <h2 id="stays-heading" className="display mt-6 text-5xl sm:text-6xl">
-            Three Rooms, Seen in Full
+            Three to Start With
           </h2>
         </div>
         <div className="mx-auto mt-20 max-w-7xl space-y-20 lg:mt-28 lg:space-y-32">
@@ -303,11 +316,17 @@ export default function HomePage() {
             );
           })}
         </div>
+        <div className="reveal mx-auto mt-20 max-w-xl text-center lg:mt-28">
+          <p className="display text-3xl sm:text-4xl">And {count} More to Look Around</p>
+          <Link href="/stays" className="eyebrow mt-8 inline-block bg-navy px-10 py-4 text-white transition-colors hover:bg-navy-deep">
+            Browse all stays
+          </Link>
+        </div>
       </section>
 
       {/* 6. A full-width photograph with one line over it. */}
       <section className="relative flex min-h-[70svh] items-center justify-center overflow-hidden bg-navy-deep px-6">
-        <Image src="/media/glass-house-valley.jpg" alt="" fill sizes="100vw" className="object-cover" />
+        <Image src="/media/glass-house-valley.jpg" alt="" fill sizes="100vw" className="parallax object-cover" />
         <div className="absolute inset-0 bg-navy-deep/45" />
         <p className="display reveal on-dark relative max-w-3xl text-center text-4xl text-white sm:text-6xl lg:text-7xl">
           See Every Corner Before You Arrive

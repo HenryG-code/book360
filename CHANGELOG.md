@@ -7,6 +7,21 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- A catalogue of 2,400 stays behind a repository interface: three hand-written, the rest generated from
+  a seeded recipe to test the site at scale. Ten more real 360° photographs, thirteen rooms in total.
+- A search page with filters, sorting and paging. Filters live in the address.
+- Stay pages for every stay, built on first visit and then kept.
+- A working demo booking flow: dates, guests, a price checked by the server, a reference, a "My
+  bookings" page, cancelling and an "Add to calendar" file.
+- The business model: a 3% commission on the room charge, shown in the booking breakdown and on a new
+  page for hosts with a payout calculator.
+- Booking rules as pure functions in `src/domain/`, with unit tests run by Node's built-in test runner.
+- Scroll-linked effects in CSS only: a reading progress line, drifting photographs and a draggable
+  panorama strip.
+- Decision records 0002 (catalogue and rendering at scale) and 0003 (booking and commission), an
+  integrations document and a catalogue scale benchmark.
+
+- Dependabot configuration: weekly update pull requests for npm packages and GitHub Actions.
 - Project structure and planning documentation.
 - Feasibility prototype: three hard-coded stays, a 360° tour that loads Marzipano only after a click, a
   photo fallback when WebGL is unavailable, and a placeholder booking page.

@@ -34,6 +34,16 @@ const SOURCES = {
   glasshouse_interior: "f9bfc47f33ddccbb803baae3db3e0d80",
   hotel_room: "5675e838ff32b9ca8ac8ac4635d3adaf",
   illovo_beach_balcony: "842bcd05fe9a8f929f3a9608144cd48e",
+  lythwood_room: "004ed677597376a17b4642f4d6e61883",
+  cabin: "d21a0880f656bb81ceea99c879f45ccb",
+  brown_photostudio_04: "c19bff53bec5c5352d0ea5c8f022d1af",
+  photo_studio_loft_hall: "3456280ca1b1cb80ebe14f257bca296d",
+  lythwood_lounge: "482855e7c9d03b260f3ff26c115ad774",
+  anniversary_lounge: "3df39e24797865650d33278341d77847",
+  combination_room: "2b279b4ca8ffe85a4851c35d81c8aa7d",
+  wooden_lounge: "ebcf0bdbabe9ec013091caa4c1535601",
+  kiara_interior: "17df3e469b1bfb8e4ef4c29d32bd53aa",
+  cayley_interior: "b56ae551991b3cd259cd11f23e4129b5",
 };
 
 // Panorama width sent to the browser. 4096 is the largest texture every phone GPU is required to
@@ -69,6 +79,17 @@ const JOBS = [
     panorama: true,
     views: [{ yaw: 112, pitch: -8 }, { yaw: -18, pitch: -14 }, { yaw: -72, pitch: -6 }],
   },
+  // Ten more rooms, added to test the catalogue with a wider set of photographs.
+  { source: "lythwood_room", slug: "twin-room", panorama: true, views: [{ yaw: -160, pitch: -8 }, { yaw: 25, pitch: -4 }, { yaw: 112, pitch: -6 }] },
+  { source: "cabin", slug: "ship-cabin", panorama: true, views: [{ yaw: -175, pitch: -8 }, { yaw: -70, pitch: -6 }, { yaw: 90, pitch: -6 }] },
+  { source: "brown_photostudio_04", slug: "bright-studio", panorama: true, views: [{ yaw: -15, pitch: -8 }, { yaw: 45, pitch: -4 }, { yaw: 150, pitch: -6 }] },
+  { source: "photo_studio_loft_hall", slug: "green-loft", panorama: true, views: [{ yaw: -70, pitch: -6 }, { yaw: 45, pitch: -4 }, { yaw: -20, pitch: -6 }] },
+  { source: "lythwood_lounge", slug: "country-lounge", panorama: true, views: [{ yaw: -135, pitch: -8 }, { yaw: 70, pitch: -6 }, { yaw: 100, pitch: -6 }] },
+  { source: "anniversary_lounge", slug: "garden-lounge", panorama: true, views: [{ yaw: 140, pitch: -8 }, { yaw: -90, pitch: -6 }, { yaw: -20, pitch: -6 }] },
+  { source: "combination_room", slug: "parlour", panorama: true, views: [{ yaw: -75, pitch: -6 }, { yaw: 45, pitch: -2 }, { yaw: -150, pitch: -6 }] },
+  { source: "wooden_lounge", slug: "timber-lounge", panorama: true, views: [{ yaw: -22, pitch: -8 }, { yaw: 45, pitch: -4 }, { yaw: 150, pitch: -8 }] },
+  { source: "kiara_interior", slug: "mountain-flat", panorama: true, views: [{ yaw: -10, pitch: -4 }, { yaw: 70, pitch: -10 }, { yaw: -150, pitch: -6 }] },
+  { source: "cayley_interior", slug: "lake-house", panorama: true, views: [{ yaw: -140, pitch: -8 }, { yaw: -10, pitch: -4 }, { yaw: -80, pitch: -6 }] },
   {
     source: "illovo_beach_balcony",
     slug: "home",

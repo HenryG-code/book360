@@ -1,4 +1,6 @@
 import { expect, test, type Page } from "@playwright/test";
+import { takenNights } from "../../src/domain/availability.ts";
+import { addDays } from "../../src/domain/dates.ts";
 
 // End-to-end tests: a real browser opens the built site and does what a visitor would do.
 // Each test checks a promise the site makes, not how the code happens to be written.
@@ -82,16 +84,138 @@ test.describe("360° tour", () => {
   });
 });
 
+/** The first run of free nights for a stay, starting a month from now. Uses the site's own availability rule. */
+function freeDates(listingId: number, nights: number): { checkIn: string; checkOut: string } {
+  let checkIn = addDays(new Date().toISOString().slice(0, 10), 30);
+  while (takenNights(listingId, checkIn, addDays(checkIn, nights)).length > 0) checkIn = addDays(checkIn, 1);
+  return { checkIn, checkOut: addDays(checkIn, nights) };
+}
+
+/** A night somebody else already has, for the same stay. */
+function takenDate(listingId: number): string {
+  let night = addDays(new Date().toISOString().slice(0, 10), 30);
+  while (takenNights(listingId, night, addDays(night, 1)).length === 0) night = addDays(night, 1);
+  return night;
+}
+
 test.describe("booking", () => {
   test("is reachable from a stay without the tour ever loading", async ({ page }) => {
     const urls = recordRequests(page);
     await page.goto(STAY);
     await page.getByRole("link", { name: "Reserve", exact: true }).click();
-
     await expect(page).toHaveURL(/\/stays\/cliffside-suite\/book$/);
     await expect(page.getByRole("heading", { level: 1, name: "Reserve Cliffside Suite" })).toBeVisible();
-    await expect(page.getByText("nothing on this page reserves a room or takes a payment")).toBeVisible();
     expect(urls.filter(isPanorama)).toEqual([]);
+  });
+
+  test("prices a stay, confirms it, lists it and cancels it", async ({ page }) => {
+    const { checkIn, checkOut } = freeDates(1, 2);
+    await page.goto(STAY + "/book");
+    await page.getByLabel("Check-in").fill(checkIn);
+    await page.getByLabel("Check-out").fill(checkOut);
+
+    // Two nights at R 2 850 plus a R 450 cleaning fee.
+    await expect(page.getByTestId("total")).toHaveText(/6\s?150/);
+    await page.getByText("Where the money goes").click();
+    await expect(page.getByText("Book360 keeps 3% of the room charge")).toBeVisible();
+
+    await page.getByRole("button", { name: "Confirm demo booking" }).click();
+    await expect(page).toHaveURL(/\/bookings\?new=B360-[0-9A-F]{8}$/);
+    await expect(page.getByText("Booking confirmed.")).toBeVisible();
+    await expect(page.getByRole("heading", { level: 2, name: "Cliffside Suite" })).toBeVisible();
+
+    // The booking survives a reload, because it is kept in the browser's storage.
+    await page.reload();
+    await expect(page.getByRole("heading", { level: 2, name: "Cliffside Suite" })).toBeVisible();
+
+    await page.getByRole("button", { name: "Cancel booking" }).click();
+    await page.getByRole("button", { name: "Yes, cancel it" }).click();
+    await expect(page.getByText("No Bookings Yet")).toBeVisible();
+  });
+
+  test("refuses nights that are already taken", async ({ page }) => {
+    const night = takenDate(1);
+    await page.goto(STAY + "/book");
+    await page.getByLabel("Check-in").fill(night);
+    await expect(page.getByText(/Already booked on/)).toBeVisible();
+    await expect(page.getByRole("button", { name: "Confirm demo booking" })).toBeDisabled();
+  });
+
+  test("the server works the price out itself and rejects bad requests", async ({ request }) => {
+    const { checkIn, checkOut } = freeDates(1, 3);
+    const good = await request.post("/api/bookings", { data: { slug: "cliffside-suite", checkIn, checkOut, guests: 2, totalMinor: 1 } });
+    expect(good.status()).toBe(201);
+    // The made-up total of one cent is ignored: 3 nights x R 2 850 + R 450, in cents.
+    expect((await good.json()).quote.totalMinor).toBe(900_000);
+
+    const tooMany = await request.post("/api/bookings", { data: { slug: "cliffside-suite", checkIn, checkOut, guests: 99 } });
+    expect(tooMany.status()).toBe(400);
+    const unknown = await request.post("/api/bookings", { data: { slug: "no-such-stay", checkIn, checkOut, guests: 1 } });
+    expect(unknown.status()).toBe(404);
+    const taken = takenDate(1);
+    const clash = await request.post("/api/bookings", { data: { slug: "cliffside-suite", checkIn: taken, checkOut: addDays(taken, 1), guests: 1 } });
+    expect(clash.status()).toBe(409);
+  });
+});
+
+test.describe("catalogue at scale", () => {
+  test("search shows one page of a large catalogue", async ({ page }) => {
+    await page.goto("/stays");
+    await expect(page.getByRole("heading", { level: 1, name: "Find a Stay" })).toBeVisible();
+    await expect(page.getByRole("status")).toContainText(/2\s?400 stays found/);
+    await expect(page.locator("main ul > li")).toHaveCount(24);
+  });
+
+  test("filters go into the address and survive a reload", async ({ page }) => {
+    await page.goto("/stays");
+    await page.getByLabel("Region").selectOption("Whale Coast");
+    await page.getByLabel("Type").selectOption("House");
+    await page.getByRole("button", { name: "Search" }).click();
+    await expect(page).toHaveURL(/region=Whale\+Coast/);
+    await expect(page).toHaveURL(/type=House/);
+    const status = await page.getByRole("status").textContent();
+    await page.reload();
+    await expect(page.getByRole("status")).toHaveText(status!);
+    await expect(page.getByLabel("Region")).toHaveValue("Whale Coast");
+    for (const card of await page.locator("main ul > li").all()) await expect(card).toContainText("House · Whale Coast");
+  });
+
+  test("paging moves through results and Back returns", async ({ page }) => {
+    await page.goto("/stays?type=Studio");
+    const firstCard = await page.locator("main ul > li").first().textContent();
+    await page.getByRole("link", { name: "Next" }).click();
+    await expect(page).toHaveURL(/page=2/);
+    await expect(page.locator("main ul > li").first()).not.toHaveText(firstCard!);
+    await page.goBack();
+    await expect(page.locator("main ul > li").first()).toHaveText(firstCard!);
+  });
+
+  test("a nonsense address still gives a working page", async ({ page }) => {
+    await page.goto("/stays?page=999999&guests=abc&region=Nowhere&max=-5");
+    await expect(page.getByRole("status")).toContainText("stays found");
+  });
+
+  test("a generated stay opens with its own tour and booking", async ({ page }) => {
+    await page.goto("/stays?sort=price-desc");
+    await page.locator("main ul > li a").first().click();
+    await expect(page).toHaveURL(/\/stays\/[a-z-]+-\d+$/);
+    await expect(page.getByRole("button", { name: /Open 360° tour/ })).toBeVisible();
+    await expect(page.getByText("other test stays share these photographs")).toBeVisible();
+    await expect(page.getByRole("link", { name: "Reserve", exact: true })).toBeVisible();
+  });
+
+  test("an unknown stay is a 404", async ({ page }) => {
+    const response = await page.goto("/stays/no-such-stay-0");
+    expect(response?.status()).toBe(404);
+  });
+});
+
+test.describe("hosts", () => {
+  test("the calculator shows the 3% commission", async ({ page }) => {
+    await page.goto("/hosts");
+    // The starting values: R 1 800 a night for 14 nights is R 25 200, and 3% of that is R 756.
+    await expect(page.getByTestId("commission")).toHaveText(/756/);
+    await expect(page.getByTestId("payout")).toHaveText(/24\s?444/);
   });
 });
 
@@ -105,10 +229,10 @@ test.describe("honesty and layout", () => {
   test("the credits page lists every photograph", async ({ page }) => {
     await page.goto("/credits");
     await expect(page.getByRole("heading", { level: 1, name: "Photo Credits" })).toBeVisible();
-    await expect(page.getByRole("listitem").filter({ hasText: "CC0 1.0" })).toHaveCount(4);
+    await expect(page.getByRole("listitem").filter({ hasText: "CC0 1.0" })).toHaveCount(14);
   });
 
-  for (const path of ["/", STAY, `${STAY}/book`, "/credits"]) {
+  for (const path of ["/", STAY, `${STAY}/book`, "/credits", "/stays", "/hosts", "/bookings"]) {
     test(`${path} never scrolls sideways`, async ({ page }) => {
       await page.goto(path);
       const overflow = await page.evaluate(
@@ -128,11 +252,11 @@ test.describe("on a phone", () => {
 
   test("the menu opens and leads to a section", async ({ page }) => {
     await page.goto("/");
-    const link = page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "Questions" });
+    const link = page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "For hosts" });
     await expect(link).toBeHidden();
     await page.getByText("Menu").tap();
     await link.tap();
-    await expect(page).toHaveURL(/#questions$/);
+    await expect(page).toHaveURL(/\/hosts$/);
   });
 
   test("Reserve stays on screen while scrolling a stay", async ({ page }) => {
@@ -152,7 +276,7 @@ test.describe("on a phone", () => {
     }
   });
 
-  for (const path of ["/", STAY]) {
+  for (const path of ["/", STAY, "/stays", `${STAY}/book`]) {
     test(`${path} has buttons and links big enough for a finger`, async ({ page }) => {
       await page.goto(path);
       // Links inside a sentence are exempt: they cannot be taller than the line of text they sit in.

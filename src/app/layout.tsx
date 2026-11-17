@@ -19,6 +19,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="en" className={`${display.variable} ${sans.variable}`}>
       <body className="font-sans antialiased">
+        <div aria-hidden="true" className="scroll-progress" />
         <p className="bg-ink px-4 py-2 text-center text-[0.6875rem] tracking-wide text-white/85">
           Demo site. Stays, prices and bookings are simulated. The photographs are real rooms, but not these stays.
         </p>
