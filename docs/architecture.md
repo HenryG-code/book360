@@ -72,7 +72,7 @@ flowchart TD
     domain["src/domain: dates, pricing, commission, availability, calendar"]
     repo["src/catalogue: ListingRepository"]
   end
-  gen["Seeded generator + 13 photographed rooms"]
+  gen["Seeded generator + 23 photographed rooms"]
   pages --> search --> repo
   pages --> stay --> repo
   form -->|stay, dates, guests| api
@@ -86,7 +86,7 @@ flowchart TD
 | Piece | Where | Why it is built this way |
 |---|---|---|
 | Repository | `src/catalogue/types.ts`, `repository.ts` | Pages ask an interface for stays and never touch the data. A database can replace the generator without changing a page. See [ADR 0002](adr/0002-catalogue-and-rendering-at-scale.md) |
-| Rooms and stays | `src/catalogue/rooms.ts`, `generate.ts` | A room is real (one photograph). A stay is invented (name, place, price) and points at a room. Thirteen rooms serve thousands of stays |
+| Rooms and stays | `src/catalogue/rooms.ts`, `generate.ts` | A room is real: one 360° photograph, with the beds it shows and what it shows ("the bedroom", "the lapa"). A stay is invented (name, place, price) and points at a room. The site shows one stay per room, so no photograph appears twice. A larger catalogue that reuses photographs exists only for the scale benchmarks (`BOOK360_CATALOGUE_SIZE`). Three stays also carry a bathroom as a second tour |
 | Beds and capacity | `src/catalogue/beds.ts` | A stay's guest count is never chosen: it is the sum of its beds (doubles and bigger 2, singles and daybeds 1, a sofa bed 2 when listed). Rooms and studios take exactly the beds their photograph shows; a house's photograph is its living room, so its 2 to 4 bedrooms are listed. Price per guest per night must sit in a band for the type (Room R700 to R1,500, Studio R600 to R1,200, House R450 to R800). Unit tests check every stay |
 | Search | `src/app/stays/page.tsx`, `src/catalogue/query.ts` | A plain GET form puts the filters in the address, so a search can be shared, reloaded and walked with Back. One page of 24 is sent, whatever the catalogue size |
 | Stay pages | `src/app/stays/[slug]/` | Featured stays are built ahead of time; the rest on first visit, then kept. Build time does not grow with the catalogue |
@@ -94,6 +94,7 @@ flowchart TD
 | Booking | `src/components/BookingForm.tsx`, `src/app/api/bookings/route.ts` | The browser shows a live price; the server recalculates it and its answer is the one saved. The browser never sends an amount. See [ADR 0003](adr/0003-booking-and-commission.md) |
 | Saved bookings | `src/lib/bookings.ts` | Browser storage, wrapped so a blocked or full store means "no bookings", not a broken page |
 | Commission | `src/domain/pricing.ts`, `src/app/hosts/` | 3% of the room charge, in whole cents, from the host's side. One function serves the booking flow and the hosts' calculator |
+| Header and menu | `src/components/SiteHeader.tsx`, `MobileMenu.tsx`, `SectionLink.tsx` | A three-column grid keeps "Book a room" in the exact centre whatever the sides measure. Links to home-page sections go through `SectionLink`, which scrolls to the section itself when the visitor is already on that page, because a link to the address you are already on does nothing. The phone menu is a native `<dialog>` opened with `showModal()`, which gives Escape to close, focus kept inside and the page behind made inert without extra code |
 | Scroll intro | `src/components/ScrollIntro.tsx`, `brand/intro/` | A Blender animation of the logo, pre-rendered to frames and drawn on a canvas in step with scrolling. Real text for the headline, a still image when motion is reduced. See [ADR 0004](adr/0004-scroll-driven-intro-animation.md) |
 | Scroll effects | `src/app/globals.css`, `src/components/DragScroll.tsx` | CSS scroll-linked animations run without JavaScript and are switched off for reduced motion and unsupported browsers. The draggable strip adds code only for mouse and keyboard; phones use native scrolling |
 

@@ -60,8 +60,9 @@ npm test
 `BASE_URL=https://book360.vercel.app npx playwright test` runs the browser tests against the live site
 instead of a local one, and `npm run bench:live -- https://book360.vercel.app` times it.
 
-`test:unit` runs the booking rules in under a second. `bench` times the catalogue at 2,400, 50,000 and
-200,000 stays. `npm test` runs the type check, the unit tests and the browser tests in order.
+`test:unit` runs the booking rules in under a second. `bench` times the catalogue code at 2,400, 50,000 and
+200,000 stays. Those large catalogues exist only for the benchmark and reuse photographs; the site
+itself shows one stay per real photograph. `npm test` runs the type check, the unit tests and the browser tests in order.
 
 Versions in use: Next.js 16.4.6, React 19.3.1, Tailwind CSS 4.3.5, Marzipano 0.10.2, TypeScript 5.9, Playwright 1.65.0.
 

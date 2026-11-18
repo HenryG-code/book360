@@ -10,10 +10,13 @@
 import { buildCatalogue, REGIONS } from "./generate.ts";
 import type { Listing, ListingRepository, SearchQuery, SearchResult } from "./types.ts";
 
-export const PAGE_SIZE = 24;
+export const PAGE_SIZE = 12;
 
-/** How many stays to generate. Set BOOK360_CATALOGUE_SIZE to try a bigger or smaller catalogue. */
-const size = Math.max(3, Number(process.env.BOOK360_CATALOGUE_SIZE) || 2400);
+/**
+ * By default the site shows one stay per photographed room. For load tests only, BOOK360_CATALOGUE_SIZE
+ * builds a bigger catalogue whose extra stays reuse photographs (see buildCatalogue).
+ */
+const size = Number(process.env.BOOK360_CATALOGUE_SIZE) || undefined;
 
 class MemoryRepository implements ListingRepository {
   private readonly all: Listing[];
@@ -68,10 +71,14 @@ class MemoryRepository implements ListingRepository {
   }
 
   async related(listing: Listing, limit: number) {
-    const sameRegion = this.all.filter((other) => other.id !== listing.id && other.location === listing.location);
-    // Start part-way through, by the stay's number, so different stays suggest different neighbours.
-    const start = sameRegion.length > limit ? listing.id % (sameRegion.length - limit) : 0;
-    return sameRegion.slice(start, start + limit);
+    // Same region first, then the same type of stay, then anything, so the list is never short.
+    const others = this.all.filter((other) => other.id !== listing.id);
+    const ranked = [
+      ...others.filter((other) => other.location === listing.location),
+      ...others.filter((other) => other.location !== listing.location && other.type === listing.type),
+      ...others.filter((other) => other.location !== listing.location && other.type !== listing.type),
+    ];
+    return ranked.slice(0, limit);
   }
 }
 

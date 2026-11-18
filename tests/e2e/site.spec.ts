@@ -159,30 +159,46 @@ test.describe("booking", () => {
   });
 });
 
-test.describe("catalogue at scale", () => {
-  test("search shows one page of a large catalogue", async ({ page }) => {
+test.describe("catalogue", () => {
+  test("search shows one page at a time", async ({ page }) => {
     await page.goto("/stays");
     await expect(page.getByRole("heading", { level: 1, name: "Find a Stay" })).toBeVisible();
-    await expect(page.getByRole("status")).toContainText(/2\s?400 stays found/);
-    await expect(page.locator("main ul > li")).toHaveCount(24);
+    await expect(page.getByRole("status")).toContainText(/\d+ stays found\. Page 1 of 2/);
+    await expect(page.locator("main ul > li")).toHaveCount(12);
+  });
+
+  test("no photograph appears on two stays", async ({ page }) => {
+    const pictures: string[] = [];
+    for (const path of ["/stays", "/stays?page=2"]) {
+      await page.goto(path);
+      for (const image of await page.locator("main ul > li img").all()) {
+        // next/image rewrites the address; the original file name is in its url= parameter.
+        const src = (await image.getAttribute("src"))!;
+        pictures.push(new URL(src, "http://x").searchParams.get("url") ?? src);
+      }
+    }
+    expect(pictures.length).toBeGreaterThan(15);
+    expect(new Set(pictures).size).toBe(pictures.length);
   });
 
   test("filters go into the address and survive a reload", async ({ page }) => {
     await page.goto("/stays");
-    await page.getByLabel("Region").selectOption("Whale Coast");
     await page.getByLabel("Type").selectOption("House");
+    await page.getByLabel("Guests").selectOption("6");
     await page.getByRole("button", { name: "Search" }).click();
-    await expect(page).toHaveURL(/region=Whale\+Coast/);
     await expect(page).toHaveURL(/type=House/);
+    await expect(page).toHaveURL(/guests=6/);
     const status = await page.getByRole("status").textContent();
     await page.reload();
     await expect(page.getByRole("status")).toHaveText(status!);
-    await expect(page.getByLabel("Region")).toHaveValue("Whale Coast");
-    for (const card of await page.locator("main ul > li").all()) await expect(card).toContainText("House · Whale Coast");
+    await expect(page.getByLabel("Type")).toHaveValue("House");
+    const cards = await page.locator("main ul > li").all();
+    expect(cards.length).toBeGreaterThan(0);
+    for (const card of cards) await expect(card).toContainText("House ·");
   });
 
   test("paging moves through results and Back returns", async ({ page }) => {
-    await page.goto("/stays?type=Studio");
+    await page.goto("/stays");
     const firstCard = await page.locator("main ul > li").first().textContent();
     await page.getByRole("link", { name: "Next" }).click();
     await expect(page).toHaveURL(/page=2/);
@@ -201,8 +217,20 @@ test.describe("catalogue at scale", () => {
     await page.locator("main ul > li a").first().click();
     await expect(page).toHaveURL(/\/stays\/[a-z-]+-\d+$/);
     await expect(page.getByRole("button", { name: /Open 360° tour/ })).toBeVisible();
-    await expect(page.getByText("other test stays share these photographs")).toBeVisible();
+    await expect(page.getByText("Real photographs, invented stay.")).toBeVisible();
     await expect(page.getByRole("link", { name: "Reserve", exact: true })).toBeVisible();
+  });
+
+  test("a stay with a bathroom tour switches between its two rooms", async ({ page }) => {
+    const urls = recordRequests(page);
+    await page.goto(STAY);
+    await expect(page.getByRole("tab", { name: "Bedroom" })).toHaveAttribute("aria-selected", "true");
+    await page.getByRole("tab", { name: "Bathroom" }).click();
+    await expect(page.getByRole("tab", { name: "Bathroom" })).toHaveAttribute("aria-selected", "true");
+    await page.getByRole("button", { name: /Open 360° tour/ }).click();
+    await expect(page.getByRole("button", { name: "Close tour" })).toBeVisible();
+    expect(urls.some((url) => url.includes("bathroom-classic-pano.jpg"))).toBe(true);
+    await expect(page.getByText("a different real place")).toBeVisible();
   });
 
   test("an unknown stay is a 404", async ({ page }) => {
@@ -230,7 +258,7 @@ test.describe("honesty and layout", () => {
   test("the credits page lists every photograph", async ({ page }) => {
     await page.goto("/credits");
     await expect(page.getByRole("heading", { level: 1, name: "Photo Credits" })).toBeVisible();
-    await expect(page.getByRole("listitem").filter({ hasText: "CC0 1.0" })).toHaveCount(14);
+    await expect(page.getByRole("listitem").filter({ hasText: "CC0 1.0" })).toHaveCount(27);
   });
 
   for (const path of ["/", STAY, `${STAY}/book`, "/credits", "/stays", "/hosts", "/bookings"]) {
@@ -251,12 +279,11 @@ test.describe("on a phone", () => {
     test.skip(!isMobile, "phone layout only");
   });
 
-  test("the menu opens and leads to a section", async ({ page }) => {
+  test("the menu opens and leads to another page", async ({ page }) => {
     await page.goto("/");
-    const link = page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "For hosts" });
-    await expect(link).toBeHidden();
-    await page.getByText("Menu").tap();
-    await link.tap();
+    await expect(page.getByRole("navigation", { name: "Main" }).getByRole("link", { name: "For hosts" })).toBeHidden();
+    await page.getByRole("button", { name: "Menu" }).tap();
+    await page.getByRole("dialog", { name: "Menu" }).getByRole("link", { name: "For hosts" }).tap();
     await expect(page).toHaveURL(/\/hosts$/);
   });
 

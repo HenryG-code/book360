@@ -116,6 +116,54 @@ summary::-webkit-details-marker {
   }
 }
 
+/* The header's surprise button: its dashed ring turns slowly, and faster on hover. */
+@keyframes turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .surprise-ring {
+    animation: turn 14s linear infinite;
+  }
+
+  .group:hover .surprise-ring {
+    animation-duration: 3s;
+  }
+}
+
+/*
+  The phone menu (src/components/MobileMenu.tsx). A <dialog> is hidden by the browser until it opens,
+  so these rules only describe how it arrives: the panel fades in, and each line rises into place a
+  moment after the one above it (--i is the line's position). @starting-style gives the values to animate
+  from; browsers without it simply show the menu at once.
+*/
+.mobile-menu::backdrop {
+  background: transparent;
+}
+
+.mobile-menu[open] {
+  display: block;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .mobile-menu[open] {
+    animation: menu-in 260ms ease-out both;
+  }
+
+  .mobile-menu[open] .mobile-menu-item {
+    animation: rise 560ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+    animation-delay: calc(80ms + var(--i, 0) * 55ms);
+  }
+}
+
+@keyframes menu-in {
+  from {
+    opacity: 0;
+  }
+}
+
 /*
   The scroll intro on the home page (src/components/ScrollIntro.tsx).
 

@@ -5,8 +5,24 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Fixed
+
+- The same photograph appeared on many stays. The site now shows one stay per real 360° photograph: 23
+  stays, none sharing a picture. Ten more rooms were added from Poly Haven and ambientCG, and three bathrooms
+  appear as a second tour inside the stays they suit.
+- "How it works" and "The idea" did nothing when clicked a second time, because the address already
+  ended in that section. They now scroll to their section every time.
+- On phones the menu stayed open over the section it had just jumped to. It now closes.
+
 ### Added
 
+- A full-width header with a floating, frosted island of links in the centre, "Book a room" as its filled
+  middle, and a turning "surprise me" button that opens a random stay.
+- Tabs on a stay page when it has more than one 360° tour.
+- A header built around booking: a "Book a room" button in the centre of every page, links either side, and a
+  count beside "My bookings". On phones, a full-screen menu in the site's navy and serif style.
+- Playwright tests for every link to a home-page section, the phone menu, the header and a crawl of the
+  whole site for broken links, missing sections, failed requests and script errors.
 - Home page FAQ rewritten for owners and backers, with a contact button.
 - Guest numbers now follow the beds. Every photographed room lists the beds it shows; a stay sleeps
   exactly what its beds hold, and its price per guest stays inside a band for its type. Stay pages show

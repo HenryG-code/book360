@@ -1,62 +1,103 @@
 import Link from "next/link";
+import { BookingsCount } from "@/components/BookingsCount";
 import { Mark, Wordmark } from "@/components/Mark";
+import { MobileMenu, type MenuLink } from "@/components/MobileMenu";
+import { SectionLink } from "@/components/SectionLink";
+import { SurpriseButton } from "@/components/SurpriseButton";
 
-const links = [
+// The "floating island": every link sits in one rounded, frosted bar in the centre of the header, and
+// "Book a room" is the bar's filled middle, so booking is both central and the boldest thing there.
+//
+// The header is a three-column grid with equal outer columns, so the island stays centred on the page
+// whatever the logo on the left and the button on the right measure. It spans the full width of the
+// screen, so the logo and the surprise button sit near the edges and the island floats between them. Over the hero photo the island is
+// glass (a blur of the photo behind it); on light pages it is a white bar with a soft shadow.
+
+const leftLinks = [
   { href: "/#idea", label: "The idea" },
-  { href: "/stays", label: "Stays" },
   { href: "/#how", label: "How it works" },
+];
+
+/** The phone menu lists everything, with booking first. */
+const menuLinks: MenuLink[] = [
+  { href: "/stays", label: "Book a room" },
+  ...leftLinks,
   { href: "/hosts", label: "For hosts" },
   { href: "/bookings", label: "My bookings" },
 ];
 
 /** `overlay` places the header on top of a dark hero image; otherwise it sits on the page background. */
 export function SiteHeader({ overlay = false }: { overlay?: boolean }) {
-  const tone = overlay
-    ? "on-dark absolute inset-x-0 top-0 z-20 border-white/25 text-white"
-    : "relative border-sand-deep bg-paper text-ink";
+  const tone = overlay ? "on-dark absolute inset-x-0 top-0 z-20 text-white" : "relative bg-paper text-ink";
+  const island = overlay
+    ? "border-white/25 bg-white/10 shadow-black/20"
+    : "border-ink/10 bg-white/85 shadow-navy-deep/10";
+  const item = `flex h-11 items-center rounded-full px-4 transition-colors ${overlay ? "hover:bg-white/15" : "hover:bg-sand"}`;
+  const book = overlay ? "bg-white text-navy-deep hover:bg-sand" : "bg-navy text-white hover:bg-navy-deep";
+
   return (
-    <header className={`border-b ${tone}`}>
-      <nav aria-label="Main" className="mx-auto flex max-w-7xl items-center justify-between gap-6 px-6 py-5 lg:px-10">
-        <Link href="/" aria-label="Book360 home" className="flex items-center gap-2.5 py-1">
+    <header className={tone}>
+      <nav
+        aria-label="Main"
+        className="grid w-full grid-cols-[1fr_auto_1fr] items-center gap-4 px-4 py-4 sm:px-6 lg:px-10 lg:py-5 2xl:px-14"
+      >
+        <Link href="/" aria-label="Book360 home" className="flex items-center gap-2.5 justify-self-start py-1">
           <Mark className="size-9" />
-          <Wordmark className="text-[0.9375rem]" />
+          {/* On narrow phones only the pin shows, so the booking button keeps the centre. */}
+          <Wordmark className="hidden text-[0.9375rem] min-[420px]:inline" />
         </Link>
-        {/* Wide screens show the links in a row. Phones get the menu further down instead. */}
-        <ul className="hidden items-center gap-9 text-[0.8125rem] lg:flex">
-          {links.map((link) => (
+
+        {/* Wide screens: the island with every link. */}
+        <ul
+          className={`hidden items-center gap-0.5 rounded-full border p-1.5 text-[0.8125rem] shadow-xl backdrop-blur-md lg:flex ${island}`}
+        >
+          {leftLinks.map((link) => (
             <li key={link.href}>
-              <Link href={link.href} className="opacity-85 transition-opacity hover:opacity-100">
+              <SectionLink href={link.href} className={item}>
                 {link.label}
-              </Link>
+              </SectionLink>
             </li>
           ))}
+          <li className="mx-1">
+            <Link
+              href="/stays"
+              className={`flex h-11 items-center gap-2 rounded-full px-5 font-medium shadow-md transition-colors ${book}`}
+            >
+              <Mark className="size-4" />
+              Book a room
+            </Link>
+          </li>
+          <li>
+            <Link href="/hosts" className={item}>
+              For hosts
+            </Link>
+          </li>
+          <li>
+            <Link href="/bookings" className={item}>
+              My bookings
+              <BookingsCount />
+            </Link>
+          </li>
         </ul>
-        <Link href="/stays" className="hidden items-center gap-2.5 py-3 text-[0.8125rem] lg:flex">
-          <span aria-hidden="true" className="size-1.5 rounded-full bg-current" />
-          Find a stay
+
+        {/* Phones and tablets: the same filled button on its own, still in the centre. */}
+        <Link
+          href="/stays"
+          className={`flex h-11 items-center gap-2 rounded-full border px-1.5 text-[0.8125rem] font-medium shadow-lg backdrop-blur-md lg:hidden ${island}`}
+        >
+          <span className={`flex h-8 items-center gap-2 rounded-full px-4 ${book}`}>
+            <Mark className="size-4" />
+            Book a room
+          </span>
         </Link>
-        {/*
-          The phone menu. <details> is the browser's own open-and-close element, so the menu works
-          without any JavaScript. The panel is positioned under the header, across the full width.
-        */}
-        <details className="group lg:hidden">
-          <summary className="-mr-3 flex h-11 cursor-pointer items-center gap-2.5 px-3 text-[0.8125rem]">
-            <span aria-hidden="true" className="flex w-5 flex-col gap-[5px]">
-              <span className="h-px bg-current transition-transform group-open:translate-y-[3px] group-open:rotate-45" />
-              <span className="h-px bg-current transition-transform group-open:-translate-y-[3px] group-open:-rotate-45" />
-            </span>
-            Menu
-          </summary>
-          <ul className="absolute inset-x-0 top-full z-30 border-b border-sand-deep bg-paper px-6 py-3 text-ink shadow-xl shadow-navy-deep/10">
-            {links.map((link) => (
-              <li key={link.href} className="border-b border-ink/10 last:border-0">
-                <Link href={link.href} className="block py-4 text-base">
-                  {link.label}
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </details>
+
+        <div className="flex items-center justify-end gap-2">
+          {/* Phones have the surprise button in their menu instead, so the booking pill keeps the centre. */}
+          <span className="hidden sm:flex">
+            <SurpriseButton overlay={overlay} />
+          </span>
+          <MobileMenu links={menuLinks} />
+        </div>
       </nav>
     </header>
   );

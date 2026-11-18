@@ -1,12 +1,9 @@
 // Builds the catalogue: three hand-written stays, then as many generated ones as asked for.
 //
-// Why generate? The point of this stage is to find out whether the site still works with thousands of
-// stays: does search stay fast, do pages still build, does paging hold up. Nobody can hand-write
-// thousands of stays, so they are produced by a recipe.
-//
-// The recipe is deterministic: stay number 1,804 has the same name, place and price every time, on
-// every machine. That is what a "seeded" random generator gives you, and it matters because a URL for
-// a stay must keep pointing at the same stay after a restart.
+// Why generate? There are only so many real 360-degree photographs to be had, so each photographed room
+// gets one invented stay around it: a name, a region, beds and a price. A seeded recipe produces them,
+// so the same stay has the same details on every machine and after every restart, and its address can
+// be shared.
 
 import { describeBeds, PER_GUEST_BAND, sleepsFor } from "./beds.ts";
 import { roomByKey, rooms } from "./rooms.ts";
@@ -73,7 +70,14 @@ const slugify = (text: string): string =>
     .replace(/[^a-z0-9]+/g, "-")
     .replace(/^-|-$/g, "");
 
-const fromRoom = (room: Room) => ({ roomKey: room.key, photos: room.photos, tour: room.tour, credit: room.credit });
+const fromRoom = (room: Room) => ({
+  roomKey: room.key,
+  scene: room.scene,
+  bathroom: room.bathroom,
+  photos: room.photos,
+  tour: room.tour,
+  credit: room.credit,
+});
 
 /** A room or studio sleeps exactly what its photograph shows. A room is one bedroom; a studio is open plan. */
 const photographedBeds = (room: Room) => ({
@@ -179,9 +183,12 @@ const FEATURED: Listing[] = [
   },
 ];
 
-function generated(id: number): Listing {
+/**
+ * One invented stay around a photographed room. Everything about it comes from a seeded recipe, so stay
+ * number 12 has the same name, place and price on every machine and after every restart.
+ */
+function generated(id: number, space: Room, shared: boolean): Listing {
   const random = seeded(id * 7919);
-  const space = pick(rooms, random);
   const region = pick(REGIONS, random);
   const name = `${pick(ADJECTIVES, random)} ${pick(NOUNS[space.type], random)}`;
   // Beds first; guests, size and price all follow from them.
@@ -191,9 +198,8 @@ function generated(id: number): Listing {
   const place =
     space.type === "House" ? `A ${bedrooms}-bedroom house` : space.type === "Studio" ? "An open-plan studio" : "A room";
   const shown =
-    space.type === "House"
-      ? " The tour shows the living room; the bedrooms are listed, not photographed."
-      : "";
+    space.type === "House" ? ` The tour shows ${space.scene}; the bedrooms are listed, not photographed.` : "";
+  const photos = shared ? " Its photographs are shared with other test stays." : "";
 
   return {
     id,
@@ -204,7 +210,7 @@ function generated(id: number): Listing {
     type: space.type,
     kicker: kickerFor(space.type, sleeps, bedrooms),
     tagline: pick(TAGLINES, random),
-    summary: `${place} in ${region} with ${describeBeds(beds)}, sleeping ${sleeps}.${shown} This is a generated test stay: the name, place and price are invented, and the photographs are shared with other stays.`,
+    summary: `${place} in ${region} with ${describeBeds(beds)}, sleeping ${sleeps}.${shown} The name, place and price are invented for this demo.${photos}`,
     nightlyRateMinor: nightly,
     cleaningFeeMinor: Math.round((nightly * 0.15) / 5000) * 5000,
     currency: "ZAR",
@@ -217,9 +223,21 @@ function generated(id: number): Listing {
   };
 }
 
-/** The whole catalogue, `size` stays long. Building 2,400 takes a few milliseconds. */
-export function buildCatalogue(size: number): Listing[] {
+/**
+ * The catalogue the site shows: the hand-written stays, then one generated stay for every other
+ * photographed room, in order. Every stay has its own photograph; none appears twice.
+ *
+ * A larger `size` is only for testing how the code copes with scale (npm run bench, unit tests). The
+ * extra stays then reuse photographs, and say so, because there are not thousands of real rooms.
+ */
+export function buildCatalogue(size?: number): Listing[] {
   const all = [...FEATURED];
-  for (let id = FEATURED.length + 1; id <= size; id++) all.push(generated(id));
-  return all;
+  const taken = new Set(FEATURED.map((listing) => listing.roomKey));
+  for (const space of rooms) {
+    if (!taken.has(space.key)) all.push(generated(all.length + 1, space, false));
+  }
+  for (let id = all.length + 1; size !== undefined && id <= size; id++) {
+    all.push(generated(id, pick(rooms, seeded(id * 104729)), true));
+  }
+  return size === undefined ? all : all.slice(0, Math.max(size, FEATURED.length));
 }
