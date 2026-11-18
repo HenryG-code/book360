@@ -44,6 +44,21 @@ const SOURCES = {
   wooden_lounge: "ebcf0bdbabe9ec013091caa4c1535601",
   kiara_interior: "17df3e469b1bfb8e4ef4c29d32bd53aa",
   cayley_interior: "b56ae551991b3cd259cd11f23e4129b5",
+  brown_photostudio_06: "9a2d6616bfc3f4ae5f91439bd05988b1",
+  christmas_photo_studio_01: "262714c2faf79569aae720505878f4fa",
+  christmas_photo_studio_05: "f3dbefe89c3fe59c042506cc25f47fdf",
+  fireplace: "21f42a925bfd34df7cacedb9ce3a3245",
+  photo_studio_london_hall: "7124c3700ae6b2cb85e67b04be251300",
+  reading_room: "031b8cece6b1eaccd94b346c64e03b9a",
+  blinds: "abfb79f93a2633af7c77b9ac6d573798",
+  lapa: "daf226ab050e6014645c4fd484139644",
+  bathroom: "5d23982128c562fb086f402cd8be54bf",
+  en_suite: "3fb9a0f5b2f497e7c7ee941a6a7da1af",
+  modern_bathroom: "8907d5b71508a37cd9297ffbbeda6bc4",
+  // ambientCG does not publish checksums. These are of the "4K_TONEMAPPED.jpg" inside each 4K zip from
+  // ambientcg.com, renamed. --fetch cannot get them: download the zip and copy the JPEG in by hand.
+  ambientcg_indoor_001: "3c9205d985b7a2a6b07659acde424633",
+  ambientcg_indoor_013: "2f2384bab6021cda69fdcfb315231a9f",
 };
 
 // Panorama width sent to the browser. 4096 is the largest texture every phone GPU is required to
@@ -90,6 +105,21 @@ const JOBS = [
   { source: "wooden_lounge", slug: "timber-lounge", panorama: true, views: [{ yaw: -22, pitch: -8 }, { yaw: 45, pitch: -4 }, { yaw: 150, pitch: -8 }] },
   { source: "kiara_interior", slug: "mountain-flat", panorama: true, views: [{ yaw: -10, pitch: -4 }, { yaw: 70, pitch: -10 }, { yaw: -150, pitch: -6 }] },
   { source: "cayley_interior", slug: "lake-house", panorama: true, views: [{ yaw: -140, pitch: -8 }, { yaw: -10, pitch: -4 }, { yaw: -80, pitch: -6 }] },
+  // Ten more rooms, added so that every stay has its own photograph.
+  { source: "brown_photostudio_06", slug: "bath-loft", panorama: true, views: [{ yaw: -60, pitch: -4 }, { yaw: 140, pitch: -8 }, { yaw: -160, pitch: -6 }] },
+  { source: "christmas_photo_studio_01", slug: "library-lounge", panorama: true, views: [{ yaw: -20, pitch: -6 }, { yaw: 30, pitch: -6 }, { yaw: 75, pitch: -8 }] },
+  { source: "christmas_photo_studio_05", slug: "festive-studio", panorama: true, views: [{ yaw: -160, pitch: -8 }, { yaw: -60, pitch: -8 }, { yaw: 30, pitch: -6 }] },
+  { source: "fireplace", slug: "fireside-lounge", panorama: true, views: [{ yaw: 0, pitch: -8 }, { yaw: -170, pitch: -10 }, { yaw: 110, pitch: -4 }] },
+  { source: "photo_studio_london_hall", slug: "drawing-room", panorama: true, views: [{ yaw: 110, pitch: -6 }, { yaw: -70, pitch: -4 }, { yaw: 10, pitch: -6 }] },
+  { source: "reading_room", slug: "reading-lounge", panorama: true, views: [{ yaw: 70, pitch: -8 }, { yaw: -10, pitch: -6 }, { yaw: -170, pitch: -6 }] },
+  { source: "blinds", slug: "family-kitchen", panorama: true, views: [{ yaw: 50, pitch: -10 }, { yaw: 110, pitch: -6 }, { yaw: -60, pitch: -6 }] },
+  { source: "lapa", slug: "thatched-lapa", panorama: true, views: [{ yaw: 120, pitch: -6 }, { yaw: -100, pitch: -4 }, { yaw: -170, pitch: -6 }] },
+  { source: "ambientcg_indoor_001", slug: "apartment-living", panorama: true, views: [{ yaw: 20, pitch: -6 }, { yaw: -140, pitch: -6 }, { yaw: -60, pitch: -4 }] },
+  { source: "ambientcg_indoor_013", slug: "guest-lounge", panorama: true, views: [{ yaw: -160, pitch: -4 }, { yaw: 120, pitch: -6 }, { yaw: -110, pitch: -4 }] },
+  // Bathrooms: a second tour inside an existing stay, so one view each for the tour's opening picture.
+  { source: "bathroom", slug: "bathroom-classic", panorama: true, views: [{ yaw: -60, pitch: -10 }] },
+  { source: "en_suite", slug: "bathroom-ensuite", panorama: true, views: [{ yaw: -150, pitch: -8 }] },
+  { source: "modern_bathroom", slug: "bathroom-modern", panorama: true, views: [{ yaw: 0, pitch: -10 }] },
   {
     source: "illovo_beach_balcony",
     slug: "home",
@@ -106,6 +136,9 @@ const rad = (degrees) => (degrees * Math.PI) / 180;
 async function ensureSource(id, fetchMissing) {
   const file = path.join(SRC_DIR, `${id}.jpg`);
   if (!existsSync(file)) {
+    if (id.startsWith("ambientcg_")) {
+      throw new Error(`Missing ${path.relative(ROOT, file)}. Download it from ambientcg.com by hand: see SOURCES.`);
+    }
     if (!fetchMissing) {
       throw new Error(`Missing ${path.relative(ROOT, file)}. Run "npm run media:prepare -- --fetch" to download it.`);
     }

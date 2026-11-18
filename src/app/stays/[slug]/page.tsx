@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { RoomTour } from "@/components/RoomTour";
+import { TourSwitcher, type TourChoice } from "@/components/TourSwitcher";
 import { SiteHeader } from "@/components/SiteHeader";
 import { StayCard } from "@/components/StayCard";
 import { repository } from "@/catalogue/repository";
@@ -10,6 +10,8 @@ import { describeBeds } from "@/catalogue/beds";
 import { assetPage, findListing, formatMoney } from "@/data/listings";
 
 type Props = { params: Promise<{ slug: string }> };
+
+const capitalise = (text: string) => text.charAt(0).toUpperCase() + text.slice(1);
 
 // Tells Next.js the full list of stays at build time, so each page is plain pre-built HTML.
 //
@@ -30,11 +32,41 @@ export default async function StayPage({ params }: Props) {
 
   const price = formatMoney(listing.nightlyRateMinor, listing.currency);
   const others = await repository.related(listing, 3);
-  const source = (
-    <a href={assetPage(listing.credit)} className="underline" rel="noreferrer">
-      Source: Poly Haven, {listing.credit.licence}
+  const sourceLink = (credit: typeof listing.credit) => (
+    <a href={assetPage(credit)} className="underline" rel="noreferrer">
+      Source: {credit.source}, {credit.licence}
     </a>
   );
+  const source = sourceLink(listing.credit);
+
+  // The main photograph, plus the bathroom where the stay has one. Each gets its own tab.
+  const tours: TourChoice[] = [
+    {
+      label: capitalise(listing.scene.replace(/^the /, "")),
+      tour: listing.tour,
+      poster: listing.photos[0],
+      about: (
+        <>
+          A real 360° photograph of {listing.scene} by {listing.credit.author}, resized for the web. Nothing in it is
+          generated. The stay around it is invented. {source}
+        </>
+      ),
+    },
+  ];
+  if (listing.bathroom) {
+    const extra = listing.bathroom;
+    tours.push({
+      label: "Bathroom",
+      tour: extra.tour,
+      poster: extra.photo,
+      about: (
+        <>
+          A real 360° photograph of a bathroom by {extra.credit.author}, from a different real place than the main
+          photograph. It shows what this stay's bathroom is meant to be like. {sourceLink(extra.credit)}
+        </>
+      ),
+    });
+  }
   // Guests always come from the beds, so the two can be shown side by side and never disagree.
   const beds = describeBeds(listing.beds);
   const facts = [
@@ -44,7 +76,10 @@ export default async function StayPage({ params }: Props) {
     { label: "Where", value: listing.location },
     {
       label: "Tour",
-      value: listing.type === "House" ? "The living room in 360°. Bedrooms are not photographed" : "The whole room in 360°",
+      value:
+        listing.type === "House"
+          ? `${capitalise(listing.scene)} in 360°. Bedrooms are not photographed`
+          : `${capitalise(listing.scene)} in 360°${listing.bathroom ? ", and the bathroom" : ""}`,
     },
     { label: "Photos", value: "Cut from the same photograph" },
   ];
@@ -94,17 +129,7 @@ export default async function StayPage({ params }: Props) {
             <h2 id="tour-heading" className="sr-only">
               360° room tour
             </h2>
-            <RoomTour
-              tour={listing.tour}
-              poster={listing.photos[0]}
-              name={listing.name}
-              about={
-                <>
-                  A real 360° photograph by {listing.credit.author}, resized for the web. Nothing in it is
-                  generated. The stay around it is invented. {source}
-                </>
-              }
-            />
+            <TourSwitcher choices={tours} name={listing.name} />
           </section>
 
           <section aria-label="About this stay" className="grid gap-12 py-24 lg:grid-cols-12 lg:py-32">
@@ -149,8 +174,7 @@ export default async function StayPage({ params }: Props) {
               <p className="border-l border-navy pl-5 text-sm leading-relaxed text-stone lg:col-span-5 lg:col-start-8">
                 <strong className="font-medium text-ink">Real photographs, invented stay.</strong> These pictures are
                 cut from the same 360° photograph as the tour, so they show the same room. The stay&apos;s name,
-                place and price are made up for this demo
-                {listing.featured ? "" : ", and other test stays share these photographs"}. {source}
+                place and price are made up for this demo. {source}
               </p>
             </div>
             {/* One large picture and two smaller ones beside it: a more deliberate shape than three equal tiles. */}

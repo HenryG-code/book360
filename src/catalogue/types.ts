@@ -4,7 +4,9 @@ export type Photo = { src: string; alt: string; width: number; height: number };
 
 /** Who made a photograph and where it came from. Shown to visitors and repeated in CREDITS.md. */
 export type Credit = {
-  /** Asset id on Poly Haven. The asset page is https://polyhaven.com/a/<id>. */
+  /** Where the photograph was published. Both release their work under CC0. */
+  source: "Poly Haven" | "ambientCG";
+  /** The asset's id on that site. */
   asset: string;
   title: string;
   author: string;
@@ -26,10 +28,16 @@ export type BedKind = "king" | "queen" | "double" | "single" | "daybed" | "sofa 
 
 export type Bed = { kind: BedKind; count: number };
 
+/** A second 360-degree tour inside a stay, such as its bathroom. */
+export type ExtraTour = { label: string; photo: Photo; tour: Tour; credit: Credit };
+
 /** A photographed space: the real part of a stay. */
 export type Room = {
   key: string;
   type: StayType;
+  /** What the photograph shows, for example "the bedroom" or "the lapa". The tour is labelled with it. */
+  scene: string;
+  bathroom?: ExtraTour;
   /**
    * The beds the photograph shows. For a room or studio this is the whole sleeping space, so every stay
    * using the photograph has exactly these beds. A house's photograph shows its living room, so its
@@ -68,6 +76,8 @@ export type Listing = {
   featured: boolean;
   roomKey: string;
   // Copied from the room so a page needs only the listing.
+  scene: string;
+  bathroom?: ExtraTour;
   photos: [Photo, Photo, Photo];
   tour: Tour;
   credit: Credit;

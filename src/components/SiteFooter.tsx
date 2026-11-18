@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { SectionLink } from "@/components/SectionLink";
 import { Mark, Wordmark } from "@/components/Mark";
 import { repository } from "@/catalogue/repository";
 
@@ -23,9 +24,9 @@ export async function SiteFooter() {
           <div className="lg:col-span-2">
             <h2 className={column}>Explore</h2>
             <ul className="mt-3">
-              <li><Link href="/#idea" className={item}>The idea</Link></li>
-              <li><Link href="/#how" className={item}>How it works</Link></li>
-              <li><Link href="/#questions" className={item}>Questions</Link></li>
+              <li><SectionLink href="/#idea" className={item}>The idea</SectionLink></li>
+              <li><SectionLink href="/#how" className={item}>How it works</SectionLink></li>
+              <li><SectionLink href="/#questions" className={item}>Questions</SectionLink></li>
               <li><Link href="/hosts" className={item}>For hosts</Link></li>
               <li><Link href="/bookings" className={item}>My bookings</Link></li>
             </ul>
@@ -60,7 +61,7 @@ export async function SiteFooter() {
             <Mark className="size-7" />
             <Wordmark className="text-xs" />
           </span>
-          <span>A Weblytics project. Demo site. Photographs: Poly Haven, CC0.</span>
+          <span>A Weblytics project. Demo site. Photographs: Poly Haven and ambientCG, CC0.</span>
         </div>
       </div>
     </footer>

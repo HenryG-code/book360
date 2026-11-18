@@ -144,9 +144,8 @@ export default async function StaysPage({ searchParams }: { searchParams: Promis
         ) : null}
 
         <p className="mt-12 border-l border-navy pl-5 text-sm leading-relaxed text-stone">
-          <strong className="font-medium text-ink">A test catalogue.</strong> Apart from the first three, these stays are
-          generated to test the site at scale. Their names, places and prices are invented, and they share
-          thirteen real photographs between them.
+          <strong className="font-medium text-ink">Real rooms, invented stays.</strong> Every stay has its own real 360°
+          photograph, and no photograph appears twice. The names, places and prices are invented for this demo.
         </p>
       </main>
     </>

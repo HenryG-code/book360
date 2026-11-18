@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/SiteHeader";
-import { assetPage, heroCredit, rooms, type Credit } from "@/data/listings";
+import { assetPage, bathrooms, heroCredit, rooms, type Credit } from "@/data/listings";
 
 export const metadata: Metadata = { title: "Photo credits" };
 
@@ -10,6 +10,7 @@ export default function CreditsPage() {
   const rows: { used: string; credit: Credit }[] = [
     { used: "Home page", credit: heroCredit },
     ...rooms.map((room) => ({ used: `${room.type} photograph`, credit: room.credit })),
+    ...bathrooms.map((extra) => ({ used: "Bathroom photograph", credit: extra.credit })),
   ];
 
   return (
@@ -19,7 +20,7 @@ export default function CreditsPage() {
         <p className="eyebrow text-stone">Sources</p>
         <h1 className="display mt-6 text-6xl sm:text-7xl">Photo Credits</h1>
         <p className="mt-10 max-w-2xl text-[0.9375rem] leading-relaxed text-stone">
-          Every picture on this site is a real photograph published by Poly Haven under the CC0 1.0 public
+          Every picture on this site is a real photograph published by Poly Haven or ambientCG under the CC0 1.0 public
           domain dedication. Each was resized, and the gallery pictures were cut from the 360° photographs.
           The stays, their names and their prices are invented, and no photographer or place shown here is
           connected to this demo.

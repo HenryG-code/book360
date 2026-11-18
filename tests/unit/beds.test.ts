@@ -9,7 +9,9 @@ import { roomByKey } from "../../src/catalogue/rooms.ts";
 import type { Listing, StayType } from "../../src/catalogue/types.ts";
 import { quoteStay } from "../../src/domain/pricing.ts";
 
-const catalogue = buildCatalogue(2_400);
+// The rules must hold for the catalogue the site shows, and for the large test catalogue used to
+// check scale, so both are checked.
+const catalogue = [...buildCatalogue(), ...buildCatalogue(2_400).slice(buildCatalogue().length)];
 const TYPES: StayType[] = ["Room", "Studio", "House"];
 
 const median = (values: number[]) => {
@@ -28,6 +30,19 @@ describe("bed capacity", () => {
     assert.equal(describeBeds([{ kind: "single", count: 2 }]), "two single beds");
     assert.equal(describeBeds([{ kind: "double", count: 1 }, { kind: "daybed", count: 1 }]), "a double bed and a daybed");
     assert.equal(describeBeds([{ kind: "king", count: 1 }, { kind: "single", count: 2 }, { kind: "sofa bed", count: 1 }]), "a king bed, two single beds and a sofa bed");
+  });
+});
+
+describe("the catalogue the site shows", () => {
+  test("gives every stay its own photograph", () => {
+    const shown = buildCatalogue();
+    const photos = shown.map((listing) => listing.photos[0].src);
+    assert.equal(new Set(photos).size, shown.length);
+    assert.equal(new Set(shown.map((listing) => listing.roomKey)).size, shown.length);
+  });
+
+  test("uses every photographed room exactly once", () => {
+    assert.equal(buildCatalogue().length, roomByKey.size);
   });
 });
 

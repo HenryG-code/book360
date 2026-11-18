@@ -5,7 +5,7 @@ import { DragScroll } from "@/components/DragScroll";
 import { ScrollIntro } from "@/components/ScrollIntro";
 import { SiteHeader } from "@/components/SiteHeader";
 import { repository } from "@/catalogue/repository";
-import { formatMoney, rooms } from "@/data/listings";
+import { bathrooms, formatMoney, rooms } from "@/data/listings";
 
 // A server component: this page is rendered to HTML on the server and ships no viewer code at all.
 // The 360 tour lives on the stay page and is only downloaded after a click there.
@@ -74,7 +74,7 @@ export default async function HomePage() {
   const [listings, total] = await Promise.all([repository.featured(), repository.count()]);
   const featured = listings[0]!;
   const count = new Intl.NumberFormat("en-ZA").format(total);
-  const pictures = rooms.length + 1; // every room photograph, plus the home page one
+  const pictures = rooms.length + bathrooms.length + 1; // every room and bathroom, plus the home page one
 
   return (
     <main>
