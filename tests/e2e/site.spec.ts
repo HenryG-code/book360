@@ -320,23 +320,30 @@ test.describe("on a phone", () => {
   }
 });
 
-test.describe("scroll intro", () => {
-  test("plays frames as the page scrolls and ends with the whole headline", async ({ page, isMobile }) => {
+test.describe("intro film", () => {
+  test("plays on its own when the section comes into view, once, and can be replayed", async ({ page, isMobile }) => {
     const urls = recordRequests(page);
     await page.goto("/");
-    const section = page.locator(".scroll-intro");
+    const section = page.locator(".intro-film");
     await expect(page.getByRole("heading", { level: 2, name: "Look Around First, Decide After" })).toBeAttached();
 
-    // Scroll through the section in steps, as a visitor would.
-    const box = await section.boundingBox();
-    const viewport = page.viewportSize()!;
-    for (let step = 0; step <= 10; step++) {
-      await page.evaluate((y) => window.scrollTo(0, y), box!.y + (step / 10) * (box!.height - viewport.height));
-      await page.waitForTimeout(80);
-    }
-    await expect(section).toHaveAttribute("data-animated", "true");
-    await expect(page.locator(".scroll-intro-canvas")).toBeVisible();
-    await expect(page.locator(".scroll-intro-word").last()).toHaveCSS("opacity", "1");
+    // One quick scroll straight to the section, the way a fast scroller would arrive.
+    await section.scrollIntoViewIfNeeded();
+    await expect(section).toHaveAttribute("data-state", "playing", { timeout: 10_000 });
+    await expect(page.locator(".intro-film-canvas")).toBeVisible();
+    // Part-way through, the last word has not arrived yet: the film has its own pace.
+    expect(Number(await page.locator(".intro-film-word").last().evaluate((el) => getComputedStyle(el).opacity))).toBeLessThan(1);
+
+    await expect(section).toHaveAttribute("data-state", "done", { timeout: 10_000 });
+    await expect(page.locator(".intro-film-word").last()).toHaveCSS("opacity", "1");
+
+    // Scrolling away and back does not restart it; the button does.
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await section.scrollIntoViewIfNeeded();
+    await expect(section).toHaveAttribute("data-state", "done");
+    await page.getByRole("button", { name: /Play again/ }).click();
+    await expect(section).toHaveAttribute("data-state", "playing");
+    await expect(section).toHaveAttribute("data-state", "done", { timeout: 10_000 });
 
     // Phones get the smaller set of frames and never download the large one.
     const frames = urls.filter((url) => url.includes("/media/intro/"));
@@ -349,10 +356,23 @@ test.describe("scroll intro", () => {
     const page = await context.newPage();
     const urls = recordRequests(page);
     await page.goto("/", { waitUntil: "networkidle" });
-    await expect(page.locator(".scroll-intro-poster")).toBeVisible();
-    await expect(page.locator(".scroll-intro-canvas")).toBeHidden();
-    for (const word of await page.locator(".scroll-intro-word").all()) await expect(word).toHaveCSS("opacity", "1");
+    await page.locator(".intro-film").scrollIntoViewIfNeeded();
+    await expect(page.locator(".intro-film")).toHaveAttribute("data-state", "still");
+    await expect(page.locator(".intro-film-poster")).toBeVisible();
+    await expect(page.locator(".intro-film-canvas")).toBeHidden();
+    for (const word of await page.locator(".intro-film-word").all()) await expect(word).toHaveCSS("opacity", "1");
     expect(urls.filter((url) => /\/media\/intro\/(lg|sm)\//.test(url))).toEqual([]);
     await context.close();
+  });
+
+  test("if the frames never arrive, the still image and headline show instead of an empty space", async ({ page }) => {
+    await page.route(/\/media\/intro\/(lg|sm)\//, () => {
+      // Leave every frame request hanging, like a very slow connection.
+    });
+    await page.goto("/");
+    await page.locator(".intro-film").scrollIntoViewIfNeeded();
+    await expect(page.locator(".intro-film")).toHaveAttribute("data-state", "still", { timeout: 6_000 });
+    await expect(page.locator(".intro-film-poster")).toBeVisible();
+    await expect(page.locator(".intro-film-word").last()).toHaveCSS("opacity", "1");
   });
 });

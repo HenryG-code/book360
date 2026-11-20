@@ -95,7 +95,7 @@ flowchart TD
 | Saved bookings | `src/lib/bookings.ts` | Browser storage, wrapped so a blocked or full store means "no bookings", not a broken page |
 | Commission | `src/domain/pricing.ts`, `src/app/hosts/` | 3% of the room charge, in whole cents, from the host's side. One function serves the booking flow and the hosts' calculator |
 | Header and menu | `src/components/SiteHeader.tsx`, `MobileMenu.tsx`, `SectionLink.tsx` | A three-column grid keeps "Book a room" in the exact centre whatever the sides measure. Links to home-page sections go through `SectionLink`, which scrolls to the section itself when the visitor is already on that page, because a link to the address you are already on does nothing. The phone menu is a native `<dialog>` opened with `showModal()`, which gives Escape to close, focus kept inside and the page behind made inert without extra code |
-| Scroll intro | `src/components/ScrollIntro.tsx`, `brand/intro/` | A Blender animation of the logo, pre-rendered to frames and drawn on a canvas in step with scrolling. Real text for the headline, a still image when motion is reduced. See [ADR 0004](adr/0004-scroll-driven-intro-animation.md) |
+| Intro film | `src/components/IntroFilm.tsx`, `brand/intro/` | A Blender animation of the logo, pre-rendered to frames and drawn on a canvas. It plays once on its own clock when the section comes into view, because tying it to the scroll let fast scrollers skip it. Real text for the headline, a still image when motion is reduced or frames are slow. See [ADR 0004](adr/0004-scroll-driven-intro-animation.md) and [ADR 0005](adr/0005-intro-plays-on-entry.md) |
 | Scroll effects | `src/app/globals.css`, `src/components/DragScroll.tsx` | CSS scroll-linked animations run without JavaScript and are switched off for reduced motion and unsupported browsers. The draggable strip adds code only for mouse and keyboard; phones use native scrolling |
 
 Planned connections to outside services are in [integrations](integrations.md).
@@ -121,6 +121,9 @@ Most visitors will arrive on a phone, so the narrow layout is the one held to a 
 | Kind | Where | What it proves |
 |---|---|---|
 | End-to-end | `tests/e2e/`, run by Playwright | A real browser opens the production build at a desktop size, a phone size and a narrow 360-pixel phone size. It checks that nothing for the tour downloads before the click, that the tour opens and closes by keyboard, that the fallback works without WebGL, that booking is reachable without the tour, that the honesty labels are present and that no page scrolls sideways. On the phone sizes it also checks the menu, the sticky Reserve bar, opening the tour by touch and the 44-pixel minimum for buttons and links |
+| Quality | `tests/e2e/quality.spec.ts`, `helpers/audit.ts` | Every page, at desktop and phone sizes: one main heading, no skipped heading levels, image descriptions, named controls, labelled fields, unique ids, WCAG AA text contrast on solid backgrounds, visible keyboard focus, no sideways scrolling, a title per page |
+| Tours | `tests/e2e/tours.spec.ts` | All 26 tours open and draw a real picture, judged from a screenshot because a WebGL canvas cannot be read back |
+| Booking edge cases | `tests/e2e/booking-edge.spec.ts` | Forged or impossible requests are refused by the server; a past date is refused by the form; blocked storage is handled; booking works by keyboard alone |
 | Looking | `scripts/capture-pages.mjs` | Saves a full-page picture of every page at both sizes into `test-results/screens/`. Tests cannot judge whether a page looks right, so this is for human eyes |
 
 Playwright starts the site itself (`npm run build`, then `npm run start`) because the dev server behaves

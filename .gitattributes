@@ -8,3 +8,4 @@
 *.gif binary
 *.mp4 binary
 *.woff2 binary
+graphify-out/graph.json merge=graphify

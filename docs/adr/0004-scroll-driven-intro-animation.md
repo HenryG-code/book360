@@ -1,6 +1,6 @@
 # 0004: Scroll-driven intro animation
 
-- **Status:** Accepted
+- **Status:** Accepted in part. How the film plays is replaced by [ADR 0005](0005-intro-plays-on-entry.md)
 - **Date:** 2026-11-17
 
 ## Problem

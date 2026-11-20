@@ -12,7 +12,10 @@ type Props = { params: Promise<{ slug: string }> };
 // Built ahead of time for the hand-written stays, and on first request for the rest (see the stay page).
 export const generateStaticParams = async () => (await repository.featured()).map(({ slug }) => ({ slug }));
 export const dynamicParams = true;
-export const metadata: Metadata = { title: "Reserve" };
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const listing = await findListing((await params).slug);
+  return { title: listing ? `Reserve ${listing.name}` : "Stay not found" };
+}
 
 // The page itself is still plain server-rendered HTML. Only the form is a client component, and it is
 // handed just the few facts it needs, so the browser never downloads the catalogue.
