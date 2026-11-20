@@ -165,54 +165,56 @@ summary::-webkit-details-marker {
 }
 
 /*
-  The scroll intro on the home page (src/components/ScrollIntro.tsx).
+  The intro film on the home page (src/components/IntroFilm.tsx).
 
-  By default, which is what visitors without the script or with reduced motion get, the section is an
-  ordinary block: the full headline above a still image. Only when motion is allowed does it become
-  three screens tall with a sticky stage inside, and the words wait for their turn.
+  By default, which is what visitors without the script or with reduced motion get, the section shows
+  the full headline above a still image. The script sets data-state as the film loads and plays:
+    idle, loading   nothing shows in the frame yet; the words wait
+    playing         the canvas plays the film; each word arrives in turn
+    done            the last frame stays, and "Play again" appears
+    still           the still image and the whole headline, when motion is reduced or frames are slow
 
-  --p is how far through the section the visitor has scrolled (0 to 1), set by the script.
-  --at is the point at which one word starts to appear. Each word then takes 8% of the scroll to arrive.
+  --p is how far through the film it is (0 to 1), set by the script. Without the script it stays 1.
+  --at is the point at which one word starts to appear. Each word then takes 8% of the film to arrive.
 */
-.scroll-intro {
+.intro-film {
   --p: 1;
 }
 
-.scroll-intro-canvas {
+.intro-film-canvas,
+.intro-film-replay {
   display: none;
 }
 
-.scroll-intro[data-animated="true"] .scroll-intro-canvas {
+/* The pin falls in from above the frame. Fading the top edge makes it appear, instead of being sliced off. */
+.intro-film-canvas {
+  mask-image: linear-gradient(to bottom, transparent 0, #000 22%);
+}
+
+.intro-film[data-state="playing"] .intro-film-canvas,
+.intro-film[data-state="done"] .intro-film-canvas,
+.intro-film[data-state="done"] .intro-film-replay {
   display: block;
 }
 
-.scroll-intro[data-animated="true"] .scroll-intro-poster {
+.intro-film[data-state="done"] .intro-film-replay {
+  display: flex;
+}
+
+.intro-film[data-state="idle"] .intro-film-poster,
+.intro-film[data-state="loading"] .intro-film-poster,
+.intro-film[data-state="playing"] .intro-film-poster,
+.intro-film[data-state="done"] .intro-film-poster {
   visibility: hidden;
 }
 
 @media (prefers-reduced-motion: no-preference) {
-  .scroll-intro {
-    height: 260svh;
-  }
-
-  .scroll-intro-stage {
-    position: sticky;
-    top: 0;
-    height: 100svh;
-  }
-
-  .scroll-intro-word {
+  .intro-film-word {
     --t: clamp(0, calc((var(--p) - var(--at)) / 0.08), 1);
     display: inline-block;
     opacity: var(--t);
     transform: translateY(calc((1 - var(--t)) * 0.45em));
     filter: blur(calc((1 - var(--t)) * 10px));
-  }
-}
-
-@media (prefers-reduced-motion: no-preference) and (min-width: 768px) {
-  .scroll-intro {
-    height: 320svh;
   }
 }
 

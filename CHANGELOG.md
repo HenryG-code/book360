@@ -5,8 +5,19 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ## [Unreleased]
 
+### Changed
+
+- The intro animation now plays on its own, once, when its section comes into view, instead of following
+  the scroll. Fast scrollers no longer skip it, the section is a screen tall instead of three, and a
+  "Play again" button replays it. If its frames are slow to arrive, the still image shows instead.
+
 ### Fixed
 
+- Every booking page had the same browser-tab title; each now names its stay.
+- The disabled "Confirm demo booking" button was hard to read (1.8:1 contrast); it is now dark grey on sand.
+- The home page downloaded the 2.7 MB intro animation before anyone scrolled; it now waits for the first
+  scroll, so visitors who leave at once download about 1 MB.
+- Unknown addresses showed a bare default page; they now get a branded page with ways back into the site.
 - The same photograph appeared on many stays. The site now shows one stay per real 360° photograph: 23
   stays, none sharing a picture. Ten more rooms were added from Poly Haven and ambientCG, and three bathrooms
   appear as a second tour inside the stays they suit.
@@ -16,6 +27,9 @@ and [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 ### Added
 
+- QA tests: accessibility and contrast checks on every page including all 23 stays and their booking
+  pages, keyboard focus, page titles, every 360° tour opening and drawing, forged booking requests,
+  blocked browser storage and booking with the keyboard alone.
 - A full-width header with a floating, frosted island of links in the centre, "Book a room" as its filled
   middle, and a turning "surprise me" button that opens a random stay.
 - Tabs on a stay page when it has more than one 360° tour.

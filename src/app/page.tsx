@@ -2,7 +2,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Mark } from "@/components/Mark";
 import { DragScroll } from "@/components/DragScroll";
-import { ScrollIntro } from "@/components/ScrollIntro";
+import { IntroFilm } from "@/components/IntroFilm";
 import { SiteHeader } from "@/components/SiteHeader";
 import { repository } from "@/catalogue/repository";
 import { bathrooms, formatMoney, rooms } from "@/data/listings";
@@ -99,11 +99,11 @@ export default async function HomePage() {
 
       {/* 2. The idea, fading into a wide photograph with one stay picked out. */}
       {/*
-        The intro animation: the pin drops in, the camera walks around it, and it settles into the logo,
-        all in step with scrolling. The text and photograph after it follow in the same sand band.
+        The intro film: the pin drops in, the camera walks around it, and it settles into the logo. It
+        plays once when the section comes into view. The text and photograph after it follow in the same sand band.
       */}
       <section className="bg-sand">
-        <ScrollIntro />
+        <IntroFilm />
         <div className="reveal mx-auto max-w-2xl px-6 pb-16 pt-10 text-center lg:pt-16">
           <p className="mx-auto mt-10 max-w-md text-[0.9375rem] leading-relaxed text-stone">
             A handful of photos shows a room at its best angle. A 360° tour shows the rest: the corner behind

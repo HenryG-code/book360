@@ -196,7 +196,7 @@ export function BookingForm({ stay }: { stay: BookableStay }) {
       <button
         type="submit"
         disabled={!quote || sending}
-        className="eyebrow h-14 w-full bg-navy text-white transition-colors hover:bg-navy-deep disabled:cursor-not-allowed disabled:bg-ink/25"
+        className="eyebrow h-14 w-full bg-navy text-white transition-colors hover:bg-navy-deep disabled:cursor-not-allowed disabled:bg-sand-deep disabled:text-stone"
       >
         {sending ? "Confirming…" : "Confirm demo booking"}
       </button>
